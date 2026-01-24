@@ -6,9 +6,9 @@
 }
 
 :root {
-    --primary-color: #6366f1;
-    --primary-dark: #4f46e5;
-    --secondary-color: #8b5cf6;
+    --primary-color: #ffffff;
+    --primary-dark: #e5e5e5;
+    --secondary-color: #a0a0a0;
     --accent-color: #10b981;
     --bg-color: #0f172a;
     --bg-light: #1e293b;
@@ -17,7 +17,7 @@
     --text-secondary: #cbd5e1;
     --text-muted: #94a3b8;
     --border-color: #334155;
-    --gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    --gradient: linear-gradient(135deg, #ffffff 0%, #d0d0d0 100%);
 }
 
 body {
