@@ -1,0 +1,138 @@
+{
+  "version": "2.0",
+  "service": {
+    "name": "x402 AI Agent Data Service",
+    "description": "首个专为 AI Agents 设计的链上数据服务 - Real-time blockchain data with x402 micropayments",
+    "url": "https://beijiang987.github.io/x402-mcp-server/",
+    "type": "mcp-server",
+    "discoverable": true
+  },
+  "contact": {
+    "website": "https://beijiang987.github.io/x402-mcp-server/",
+    "github": "https://github.com/beijiang987/x402-mcp-server",
+    "support": "support@x402-data.com"
+  },
+  "capabilities": {
+    "protocols": ["mcp", "http"],
+    "networks": ["ethereum", "base", "polygon", "arbitrum", "optimism"],
+    "languages": ["zh", "en", "ko", "ja"]
+  },
+  "endpoints": {
+    "GET /api/token-price": {
+      "description": "获取实时代币价格 - Real-time token price from DEX",
+      "accepts": [
+        {
+          "network": "eip155:8453",
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "amount": "300"
+        },
+        {
+          "network": "eip155:1",
+          "asset": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "amount": "300"
+        }
+      ],
+      "parameters": {
+        "token_address": "string",
+        "chain": "string"
+      },
+      "pricing": "$0.0003 per call"
+    },
+    "GET /api/multichain-price": {
+      "description": "跨链价格聚合 - Multi-chain price aggregation",
+      "accepts": [
+        {
+          "network": "eip155:8453",
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "amount": "1000"
+        }
+      ],
+      "parameters": {
+        "token_symbol": "string",
+        "chains": "array"
+      },
+      "pricing": "$0.001 per call"
+    },
+    "GET /api/pool-analytics": {
+      "description": "流动池分析 - Liquidity pool analytics (TVL, APY, volume)",
+      "accepts": [
+        {
+          "network": "eip155:8453",
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "amount": "2000"
+        }
+      ],
+      "parameters": {
+        "pool_address": "string",
+        "chain": "string"
+      },
+      "pricing": "$0.002 per call"
+    },
+    "GET /api/whale-transactions": {
+      "description": "巨鲸交易监控 - Whale transaction monitoring",
+      "accepts": [
+        {
+          "network": "eip155:8453",
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "amount": "5000"
+        }
+      ],
+      "parameters": {
+        "token_address": "string",
+        "chain": "string",
+        "min_value_usd": "number"
+      },
+      "pricing": "$0.005 per call"
+    },
+    "GET /api/contract-safety": {
+      "description": "合约安全扫描 - Smart contract safety scan (honeypot detection, risk scoring)",
+      "accepts": [
+        {
+          "network": "eip155:8453",
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "amount": "20000"
+        }
+      ],
+      "parameters": {
+        "contract_address": "string",
+        "chain": "string"
+      },
+      "pricing": "$0.02 per call"
+    }
+  },
+  "pricing": {
+    "tiers": {
+      "free": {
+        "name": "Free",
+        "price": "$0/month",
+        "calls": "10 per day",
+        "features": ["All API access", "Community support"]
+      },
+      "starter": {
+        "name": "Starter",
+        "price": "$10/month",
+        "calls": "10,000 per month",
+        "features": ["All API access", "Discounted pricing", "Email support"]
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "$50/month",
+        "calls": "100,000 per month",
+        "features": ["All API access", "30% discount", "Priority support", "99.9% SLA"]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "Custom",
+        "calls": "Unlimited",
+        "features": ["Custom pricing", "Dedicated support", "99.99% SLA"]
+      }
+    }
+  },
+  "metadata": {
+    "category": "data-services",
+    "tags": ["ai-agent", "blockchain", "defi", "analytics", "mcp", "x402", "micropayments"],
+    "created": "2026-01-25",
+    "updated": "2026-01-25",
+    "status": "active"
+  }
+}

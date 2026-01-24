@@ -1,0 +1,55 @@
+{
+  "x402": "2.0",
+  "name": "x402 AI Agent Data Service",
+  "description": "AI Agent Data Service - 首个专为 AI Agents 设计的链上数据服务。提供实时代币价格、跨链价格聚合、流动池分析、巨鲸交易监控、合约安全扫描等服务。",
+  "url": "https://beijiang987.github.io/x402-mcp-server/",
+  "discovery": "https://beijiang987.github.io/x402-mcp-server/.well-known/x402.json",
+  "type": "mcp-data-service",
+  "status": "active",
+  "networks": ["ethereum", "base", "polygon", "arbitrum", "optimism"],
+  "tools": [
+    {
+      "name": "get_token_price",
+      "description": "获取实时代币价格",
+      "price_usd": 0.0003
+    },
+    {
+      "name": "get_multichain_price",
+      "description": "跨链价格聚合",
+      "price_usd": 0.001
+    },
+    {
+      "name": "get_pool_analytics",
+      "description": "流动池分析",
+      "price_usd": 0.002
+    },
+    {
+      "name": "get_whale_transactions",
+      "description": "巨鲸交易监控",
+      "price_usd": 0.005
+    },
+    {
+      "name": "scan_contract_safety",
+      "description": "合约安全扫描",
+      "price_usd": 0.02
+    }
+  ],
+  "payment": {
+    "accepts": [
+      {
+        "network": "eip155:8453",
+        "symbol": "USDC",
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+      },
+      {
+        "network": "eip155:1",
+        "symbol": "USDC",
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+      }
+    ]
+  },
+  "contact": {
+    "website": "https://beijiang987.github.io/x402-mcp-server/",
+    "github": "https://github.com/beijiang987/x402-mcp-server"
+  }
+}
