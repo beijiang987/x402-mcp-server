@@ -19,11 +19,17 @@
                 <span class="brand-name">x402 Data Service</span>
             </div>
             <ul class="nav-menu">
-                <li><a href="#features">功能</a></li>
-                <li><a href="#pricing">定价</a></li>
-                <li><a href="#api">API 文档</a></li>
-                <li><a href="#quickstart">快速开始</a></li>
-                <li><a href="https://github.com/your-repo/x402-mcp-server" class="btn-outline" target="_blank">GitHub</a></li>
+                <li><a href="#features" data-i18n="nav.features">功能</a></li>
+                <li><a href="#pricing" data-i18n="nav.pricing">定价</a></li>
+                <li><a href="#api" data-i18n="nav.api">API 文档</a></li>
+                <li><a href="#quickstart" data-i18n="nav.quickstart">快速开始</a></li>
+                <li><a href="https://github.com/your-repo/x402-mcp-server" class="btn-outline" target="_blank" data-i18n="nav.github">GitHub</a></li>
+                <li class="lang-switcher">
+                    <button data-lang="zh" class="lang-btn active">中文</button>
+                    <button data-lang="en" class="lang-btn">EN</button>
+                    <button data-lang="ko" class="lang-btn">한국어</button>
+                    <button data-lang="ja" class="lang-btn">日本語</button>
+                </li>
             </ul>
         </div>
     </nav>
@@ -33,29 +39,29 @@
         <div class="container">
             <div class="hero-content">
                 <h1 class="hero-title">
-                    为 AI Agents 设计的<br/>
-                    <span class="gradient-text">链上数据服务</span>
+                    <span data-i18n="hero.title1">为 AI Agents 设计的</span><br/>
+                    <span class="gradient-text" data-i18n="hero.title2">链上数据服务</span>
                 </h1>
-                <p class="hero-subtitle">
+                <p class="hero-subtitle" data-i18n="hero.subtitle">
                     通过 x402 微支付协议，AI Agents 可以自主调用实时链上数据<br/>
                     无需账户、订阅或复杂集成 - 按需付费，低至 $0.0003/次
                 </p>
                 <div class="hero-buttons">
-                    <a href="#quickstart" class="btn-primary">立即开始</a>
-                    <a href="#api" class="btn-secondary">查看文档</a>
+                    <a href="#quickstart" class="btn-primary" data-i18n="hero.btnPrimary">立即开始</a>
+                    <a href="#api" class="btn-secondary" data-i18n="hero.btnSecondary">查看文档</a>
                 </div>
                 <div class="hero-stats">
                     <div class="stat">
                         <div class="stat-value">9</div>
-                        <div class="stat-label">API 工具</div>
+                        <div class="stat-label" data-i18n="hero.stat1">API 工具</div>
                     </div>
                     <div class="stat">
                         <div class="stat-value">5</div>
-                        <div class="stat-label">支持链</div>
+                        <div class="stat-label" data-i18n="hero.stat2">支持链</div>
                     </div>
                     <div class="stat">
                         <div class="stat-value">$0.0003</div>
-                        <div class="stat-label">起步价</div>
+                        <div class="stat-label" data-i18n="hero.stat3">起步价</div>
                     </div>
                 </div>
             </div>
@@ -65,50 +71,50 @@
     <!-- 功能特性 -->
     <section id="features" class="features">
         <div class="container">
-            <h2 class="section-title">核心功能</h2>
-            <p class="section-subtitle">为 AI Agents 量身定制的数据服务</p>
+            <h2 class="section-title" data-i18n="features.title">核心功能</h2>
+            <p class="section-subtitle" data-i18n="features.subtitle">为 AI Agents 量身定制的数据服务</p>
 
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">💰</div>
-                    <h3>实时代币价格</h3>
-                    <p>跨 5 条主流链的实时 DEX 价格查询，支持流动性和交易量数据</p>
+                    <h3 data-i18n="features.feature1.title">实时代币价格</h3>
+                    <p data-i18n="features.feature1.desc">跨 5 条主流链的实时 DEX 价格查询，支持流动性和交易量数据</p>
                     <span class="feature-price">$0.0003/次</span>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">🌐</div>
-                    <h3>跨链价格聚合</h3>
-                    <p>自动对比多链价格，识别套利机会，推荐最优 DEX</p>
+                    <h3 data-i18n="features.feature2.title">跨链价格聚合</h3>
+                    <p data-i18n="features.feature2.desc">自动对比多链价格，识别套利机会，推荐最优 DEX</p>
                     <span class="feature-price">$0.001/次</span>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">💧</div>
-                    <h3>流动池分析</h3>
-                    <p>TVL、APY、交易量、无常损失等完整的流动性池数据</p>
+                    <h3 data-i18n="features.feature3.title">流动池分析</h3>
+                    <p data-i18n="features.feature3.desc">TVL、APY、交易量、无常损失等完整的流动性池数据</p>
                     <span class="feature-price">$0.002/次</span>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">🐋</div>
-                    <h3>巨鲸交易监控</h3>
-                    <p>实时监控大额交易，可定制监控阈值和交易类型</p>
+                    <h3 data-i18n="features.feature4.title">巨鲸交易监控</h3>
+                    <p data-i18n="features.feature4.desc">实时监控大额交易，可定制监控阈值和交易类型</p>
                     <span class="feature-price">$0.005/次</span>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">🔒</div>
-                    <h3>合约安全扫描</h3>
-                    <p>智能合约风险评分、蜜罐检测、代理合约识别</p>
+                    <h3 data-i18n="features.feature5.title">合约安全扫描</h3>
+                    <p data-i18n="features.feature5.desc">智能合约风险评分、蜜罐检测、代理合约识别</p>
                     <span class="feature-price">$0.02/次</span>
                 </div>
 
                 <div class="feature-card highlight">
                     <div class="feature-icon">⚡</div>
-                    <h3>x402 微支付</h3>
-                    <p>无需账户、无需订阅，AI Agent 自主决策和支付</p>
-                    <span class="feature-price">即时结算</span>
+                    <h3 data-i18n="features.feature6.title">x402 微支付</h3>
+                    <p data-i18n="features.feature6.desc">无需账户、无需订阅，AI Agent 自主决策和支付</p>
+                    <span class="feature-price" data-i18n="features.instant">即时结算</span>
                 </div>
             </div>
         </div>
@@ -117,70 +123,70 @@
     <!-- 定价 -->
     <section id="pricing" class="pricing">
         <div class="container">
-            <h2 class="section-title">简单透明的定价</h2>
-            <p class="section-subtitle">选择最适合你的方案</p>
+            <h2 class="section-title" data-i18n="pricing.title">简单透明的定价</h2>
+            <p class="section-subtitle" data-i18n="pricing.subtitle">选择最适合你的方案</p>
 
             <div class="pricing-grid">
                 <div class="pricing-card">
-                    <h3 class="pricing-tier">Free</h3>
+                    <h3 class="pricing-tier" data-i18n="pricing.tier.free.name">Free</h3>
                     <div class="pricing-price">
-                        <span class="price">$0</span>
-                        <span class="period">/月</span>
+                        <span class="price" data-i18n="pricing.tier.free.price">$0</span>
+                        <span class="period" data-i18n="pricing.perMonth">/月</span>
                     </div>
                     <ul class="pricing-features">
-                        <li>✅ 10 次/天调用</li>
-                        <li>✅ 所有 API 访问</li>
-                        <li>✅ 社区支持</li>
-                        <li>❌ 无 SLA 保证</li>
+                        <li data-i18n="pricing.tier.free.feature1">✅ 10 次/天调用</li>
+                        <li data-i18n="pricing.tier.free.feature2">✅ 所有 API 访问</li>
+                        <li data-i18n="pricing.tier.free.feature3">✅ 社区支持</li>
+                        <li data-i18n="pricing.tier.free.feature4">❌ 无 SLA 保证</li>
                     </ul>
-                    <a href="#quickstart" class="btn-pricing">开始使用</a>
+                    <a href="#quickstart" class="btn-pricing" data-i18n="pricing.btnFree">开始使用</a>
                 </div>
 
                 <div class="pricing-card popular">
-                    <div class="popular-badge">最受欢迎</div>
-                    <h3 class="pricing-tier">Starter</h3>
+                    <div class="popular-badge" data-i18n="pricing.popular">最受欢迎</div>
+                    <h3 class="pricing-tier" data-i18n="pricing.tier.starter.name">Starter</h3>
                     <div class="pricing-price">
-                        <span class="price">$10</span>
-                        <span class="period">/月</span>
+                        <span class="price" data-i18n="pricing.tier.starter.price">$10</span>
+                        <span class="period" data-i18n="pricing.perMonth">/月</span>
                     </div>
                     <ul class="pricing-features">
-                        <li>✅ 10,000 次调用/月</li>
-                        <li>✅ 所有 API 访问</li>
-                        <li>✅ 折扣价格</li>
-                        <li>✅ 邮件支持</li>
+                        <li data-i18n="pricing.tier.starter.feature1">✅ 10,000 次调用/月</li>
+                        <li data-i18n="pricing.tier.starter.feature2">✅ 所有 API 访问</li>
+                        <li data-i18n="pricing.tier.starter.feature3">✅ 折扣价格</li>
+                        <li data-i18n="pricing.tier.starter.feature4">✅ 邮件支持</li>
                     </ul>
-                    <a href="#quickstart" class="btn-pricing primary">立即订阅</a>
+                    <a href="#quickstart" class="btn-pricing primary" data-i18n="pricing.btnStart">立即订阅</a>
                 </div>
 
                 <div class="pricing-card">
-                    <h3 class="pricing-tier">Pro</h3>
+                    <h3 class="pricing-tier" data-i18n="pricing.tier.pro.name">Pro</h3>
                     <div class="pricing-price">
-                        <span class="price">$50</span>
-                        <span class="period">/月</span>
+                        <span class="price" data-i18n="pricing.tier.pro.price">$50</span>
+                        <span class="period" data-i18n="pricing.perMonth">/月</span>
                     </div>
                     <ul class="pricing-features">
-                        <li>✅ 100,000 次调用/月</li>
-                        <li>✅ 所有 API 访问</li>
-                        <li>✅ 最高折扣（30%）</li>
-                        <li>✅ 优先支持</li>
-                        <li>✅ 99.9% SLA</li>
+                        <li data-i18n="pricing.tier.pro.feature1">✅ 100,000 次调用/月</li>
+                        <li data-i18n="pricing.tier.pro.feature2">✅ 所有 API 访问</li>
+                        <li data-i18n="pricing.tier.pro.feature3">✅ 最高折扣（30%）</li>
+                        <li data-i18n="pricing.tier.pro.feature4">✅ 优先支持</li>
+                        <li data-i18n="pricing.tier.pro.feature5">✅ 99.9% SLA</li>
                     </ul>
-                    <a href="#quickstart" class="btn-pricing">立即订阅</a>
+                    <a href="#quickstart" class="btn-pricing" data-i18n="pricing.btnPro">立即订阅</a>
                 </div>
 
                 <div class="pricing-card">
-                    <h3 class="pricing-tier">Enterprise</h3>
+                    <h3 class="pricing-tier" data-i18n="pricing.tier.enterprise.name">Enterprise</h3>
                     <div class="pricing-price">
-                        <span class="price">定制</span>
+                        <span class="price" data-i18n="pricing.tier.enterprise.price">定制</span>
                     </div>
                     <ul class="pricing-features">
-                        <li>✅ 无限调用</li>
-                        <li>✅ 专属折扣（最高70%）</li>
-                        <li>✅ 定制功能</li>
-                        <li>✅ 专属支持</li>
-                        <li>✅ 99.99% SLA</li>
+                        <li data-i18n="pricing.tier.enterprise.feature1">✅ 无限调用</li>
+                        <li data-i18n="pricing.tier.enterprise.feature2">✅ 专属折扣（最高70%）</li>
+                        <li data-i18n="pricing.tier.enterprise.feature3">✅ 定制功能</li>
+                        <li data-i18n="pricing.tier.enterprise.feature4">✅ 专属支持</li>
+                        <li data-i18n="pricing.tier.enterprise.feature5">✅ 99.99% SLA</li>
                     </ul>
-                    <a href="mailto:support@x402-data.com" class="btn-pricing">联系我们</a>
+                    <a href="mailto:support@x402-data.com" class="btn-pricing" data-i18n="pricing.btnEnterprise">联系我们</a>
                 </div>
             </div>
         </div>
@@ -189,8 +195,8 @@
     <!-- API 文档预览 -->
     <section id="api" class="api-docs">
         <div class="container">
-            <h2 class="section-title">API 文档</h2>
-            <p class="section-subtitle">简单易用的 MCP 接口</p>
+            <h2 class="section-title" data-i18n="apiDocs.title">API 文档</h2>
+            <p class="section-subtitle" data-i18n="apiDocs.subtitle">简单易用的 MCP 接口</p>
 
             <div class="api-grid">
                 <div class="api-card">
@@ -231,7 +237,7 @@
             </div>
 
             <div class="api-cta">
-                <a href="api.html" class="btn-primary">查看完整 API 文档</a>
+                <a href="api.html" class="btn-primary" data-i18n="apiDocs.viewFull">查看完整 API 文档</a>
             </div>
         </div>
     </section>
@@ -239,13 +245,13 @@
     <!-- 快速开始 -->
     <section id="quickstart" class="quickstart">
         <div class="container">
-            <h2 class="section-title">5 分钟快速开始</h2>
+            <h2 class="section-title" data-i18n="quickstart.title">5 分钟快速开始</h2>
 
             <div class="steps">
                 <div class="step">
                     <div class="step-number">1</div>
                     <div class="step-content">
-                        <h3>克隆仓库</h3>
+                        <h3 data-i18n="quickstart.step1.title">克隆仓库</h3>
                         <pre><code>git clone https://github.com/your-repo/x402-mcp-server
 cd x402-mcp-server</code></pre>
                     </div>
@@ -254,7 +260,7 @@ cd x402-mcp-server</code></pre>
                 <div class="step">
                     <div class="step-number">2</div>
                     <div class="step-content">
-                        <h3>安装依赖</h3>
+                        <h3 data-i18n="quickstart.step2.title">安装依赖</h3>
                         <pre><code>npm install
 npm run build</code></pre>
                     </div>
@@ -263,7 +269,7 @@ npm run build</code></pre>
                 <div class="step">
                     <div class="step-number">3</div>
                     <div class="step-content">
-                        <h3>启动服务器</h3>
+                        <h3 data-i18n="quickstart.step3.title">启动服务器</h3>
                         <pre><code>npm start
 # 或使用启动脚本
 ./start.sh</code></pre>
@@ -273,7 +279,7 @@ npm run build</code></pre>
                 <div class="step">
                     <div class="step-number">4</div>
                     <div class="step-content">
-                        <h3>开始调用</h3>
+                        <h3 data-i18n="quickstart.step4.title">开始调用</h3>
                         <pre><code>// 运行示例
 python3 examples/simple-agent-example.py</code></pre>
                     </div>
@@ -285,7 +291,7 @@ python3 examples/simple-agent-example.py</code></pre>
     <!-- 支持的网络 -->
     <section class="networks">
         <div class="container">
-            <h2 class="section-title">支持的区块链网络</h2>
+            <h2 class="section-title" data-i18n="networks.title">支持的区块链网络</h2>
             <div class="networks-grid">
                 <div class="network-card">
                     <div class="network-icon">⟠</div>
@@ -314,11 +320,11 @@ python3 examples/simple-agent-example.py</code></pre>
     <!-- CTA -->
     <section class="cta">
         <div class="container">
-            <h2>准备好开始了吗？</h2>
-            <p>立即开始使用 x402 AI Agent 数据服务</p>
+            <h2 data-i18n="cta.title">准备好开始了吗？</h2>
+            <p data-i18n="cta.subtitle">立即开始使用 x402 AI Agent 数据服务</p>
             <div class="cta-buttons">
-                <a href="#quickstart" class="btn-primary large">免费开始</a>
-                <a href="https://github.com/your-repo/x402-mcp-server" class="btn-secondary large" target="_blank">查看 GitHub</a>
+                <a href="#quickstart" class="btn-primary large" data-i18n="cta.btnPrimary">免费开始</a>
+                <a href="https://github.com/your-repo/x402-mcp-server" class="btn-secondary large" target="_blank" data-i18n="cta.btnSecondary">查看 GitHub</a>
             </div>
         </div>
     </section>
@@ -328,16 +334,16 @@ python3 examples/simple-agent-example.py</code></pre>
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h4>产品</h4>
+                    <h4 data-i18n="footer.product">产品</h4>
                     <ul>
-                        <li><a href="#features">功能</a></li>
-                        <li><a href="#pricing">定价</a></li>
-                        <li><a href="api.html">API 文档</a></li>
-                        <li><a href="#quickstart">快速开始</a></li>
+                        <li><a href="#features" data-i18n="nav.features">功能</a></li>
+                        <li><a href="#pricing" data-i18n="nav.pricing">定价</a></li>
+                        <li><a href="api.html" data-i18n="nav.api">API 文档</a></li>
+                        <li><a href="#quickstart" data-i18n="nav.quickstart">快速开始</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>资源</h4>
+                    <h4 data-i18n="footer.resources">资源</h4>
                     <ul>
                         <li><a href="https://github.com/your-repo/x402-mcp-server" target="_blank">GitHub</a></li>
                         <li><a href="https://docs.x402.org" target="_blank">x402 文档</a></li>
@@ -345,23 +351,27 @@ python3 examples/simple-agent-example.py</code></pre>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>社区</h4>
+                    <h4 data-i18n="footer.community">社区</h4>
                     <ul>
                         <li><a href="https://discord.com/invite/cdp" target="_blank">Discord</a></li>
                         <li><a href="https://twitter.com/x402data" target="_blank">Twitter</a></li>
-                        <li><a href="mailto:support@x402-data.com">联系我们</a></li>
+                        <li><a href="mailto:support@x402-data.com" data-i18n="footer.contactUs">联系我们</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>关于</h4>
-                    <p>首个专为 AI Agents 设计的链上数据服务平台</p>
-                    <p style="margin-top: 1rem;">由 x402 协议驱动 🤖⚡💰</p>
+                    <h4 data-i18n="footer.about">关于</h4>
+                    <p data-i18n="footer.description">首个专为 AI Agents 设计的链上数据服务平台</p>
+                    <p style="margin-top: 1rem;" data-i18n="footer.poweredBy">由 x402 协议驱动 🤖⚡💰</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 x402 Data Service. All rights reserved.</p>
+                <p data-i18n="footer.copyright">&copy; 2024 x402 Data Service. All rights reserved.</p>
             </div>
         </div>
     </footer>
+
+    <!-- 多语言支持 -->
+    <script src="translations.js"></script>
+    <script src="language.js"></script>
 </body>
 </html>
