@@ -1,20 +1,28 @@
 {
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/api/index"
+      "source": "/api/x402/token-price",
+      "destination": "/api/x402/token-price"
+    },
+    {
+      "source": "/api/x402/multichain-price",
+      "destination": "/api/x402/multichain-price"
+    },
+    {
+      "source": "/api/x402/pool-analytics",
+      "destination": "/api/x402/pool-analytics"
+    },
+    {
+      "source": "/api/x402/whale-transactions",
+      "destination": "/api/x402/whale-transactions"
+    },
+    {
+      "source": "/api/x402/contract-safety",
+      "destination": "/api/x402/contract-safety"
     },
     {
       "source": "/docs",
       "destination": "/docs.html"
-    },
-    {
-      "source": "/api/:path*",
-      "destination": "/api/index"
-    },
-    {
-      "source": "/health",
-      "destination": "/api/index"
     },
     {
       "source": "/.well-known/x402.json",
