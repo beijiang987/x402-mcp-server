@@ -235,11 +235,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  // Unknown route
-  return res.status(404).json({
-    success: false,
+  // Default route - also return 402 for x402scan verification
+  // This allows x402scan to detect this as an x402 service
+  const defaultPrice = 0.001;
+
+  return res.status(402).json({
     error: {
-      message: 'Route not found'
-    }
+      code: 'payment_required',
+      message: `This is an x402 payment-required API service. Payment of ${defaultPrice} USD required.`,
+      price_usd: defaultPrice
+    },
+    payment: {
+      methods: ['x402'],
+      networks: [
+        {
+          network: 'eip155:8453', // Base
+          asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // USDC
+          amount: (defaultPrice * 1_000_000).toString(),
+          recipient: PAYMENT_ADDRESS_BASE
+        },
+        {
+          network: 'eip155:1', // Ethereum
+          asset: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
+          amount: (defaultPrice * 1_000_000).toString(),
+          recipient: PAYMENT_ADDRESS_ETH
+        }
+      ]
+    },
+    service: {
+      name: 'x402 AI Agent Data Service',
+      version: '1.0.0',
+      discovery: '/.well-known/x402.json',
+      documentation: 'https://beijiang987.github.io/x402-mcp-server/'
+    },
+    available_endpoints: Object.keys(PRICES)
   });
 }
