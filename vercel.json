@@ -1,35 +1,6 @@
 {
-  "buildCommand": "echo 'No build needed for serverless functions'",
-  "outputDirectory": "docs",
-  "rewrites": [
-    {
-      "source": "/.well-known/x402.json",
-      "destination": "/docs/.well-known/x402.json"
-    },
-    {
-      "source": "/api/:path*",
-      "destination": "/api/index"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/.well-known/x402.json",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/json"
-        },
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600"
-        }
-      ]
-    }
-  ],
+  "version": 2,
+  "public": false,
   "functions": {
     "api/index.ts": {
       "memory": 1024,
