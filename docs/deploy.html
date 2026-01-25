@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一键部署 x402 API 服务器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            background: white;
+            border-radius: 1rem;
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #1a202c;
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-bottom: 2rem;
+        }
+
+        .status {
+            background: #f7fafc;
+            border-left: 4px solid #48bb78;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 0.5rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .check {
+            color: #48bb78;
+            margin-right: 0.5rem;
+            font-weight: bold;
+        }
+
+        .wallet {
+            background: #edf2f7;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        .wallet-label {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+
+        .deploy-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1.25rem 2rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .deploy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .deploy-btn:active {
+            transform: translateY(0);
+        }
+
+        .steps {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .step {
+            margin-bottom: 1.5rem;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-desc {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-left: 2rem;
+        }
+
+        .env-vars {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .env-var {
+            margin-bottom: 0.75rem;
+        }
+
+        .env-var:last-child {
+            margin-bottom: 0;
+        }
+
+        .env-key {
+            color: #805ad5;
+            font-weight: bold;
+        }
+
+        .env-value {
+            color: #2c5282;
+        }
+
+        .copy-btn {
+            background: #edf2f7;
+            border: 1px solid #cbd5e0;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .copy-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .note {
+            background: #fff5f5;
+            border-left: 4px solid #fc8181;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            color: #742a2a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 一键部署到 Vercel</h1>
+        <p class="subtitle">x402 AI Agent Data Service - HTTP API 服务器</p>
+
+        <div class="status">
+            <div class="status-item">
+                <span class="check">✓</span>
+                <span>代码已准备完毕</span>
+            </div>
+            <div class="status-item">
+                <span class="check">✓</span>
+                <span>配置已完成</span>
+            </div>
+            <div class="status-item">
+                <span class="check">✓</span>
+                <span>GitHub 仓库已同步</span>
+            </div>
+        </div>
+
+        <div class="wallet">
+            <div class="wallet-label">您的钱包地址：</div>
+            <div id="wallet-address">0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3</div>
+        </div>
+
+        <button class="deploy-btn" onclick="deployToVercel()">
+            🚀 立即部署到 Vercel
+        </button>
+
+        <div class="steps">
+            <h3 style="margin-bottom: 1rem; color: #2d3748;">部署步骤（自动完成）：</h3>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">1</span>
+                    登录 Vercel
+                </div>
+                <div class="step-desc">
+                    点击按钮后，您将被重定向到 Vercel 网站，使用 GitHub 账号登录。
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">2</span>
+                    添加环境变量
+                </div>
+                <div class="step-desc">
+                    在 Vercel 的环境变量设置中，添加以下 3 个变量：
+                </div>
+                <div class="env-vars">
+                    <div class="env-var">
+                        <span class="env-key">X402_PAYMENT_ADDRESS_BASE</span> =
+                        <span class="env-value">0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3</span>
+                    </div>
+                    <div class="env-var">
+                        <span class="env-key">X402_PAYMENT_ADDRESS_ETH</span> =
+                        <span class="env-value">0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3</span>
+                    </div>
+                    <div class="env-var">
+                        <span class="env-key">NODE_ENV</span> =
+                        <span class="env-value">production</span>
+                    </div>
+                </div>
+                <button class="copy-btn" onclick="copyEnvVars()">📋 复制环境变量</button>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">3</span>
+                    点击 Deploy
+                </div>
+                <div class="step-desc">
+                    确认所有设置后，点击 Vercel 页面上的 "Deploy" 按钮，等待 2-3 分钟完成部署。
+                </div>
+            </div>
+        </div>
+
+        <div class="note">
+            <strong>⚠️ 重要提示：</strong>
+            <br>
+            • 每个环境变量都要勾选 Production、Preview、Development 三个环境
+            <br>
+            • 部署成功后，您将获得一个 .vercel.app 域名
+            <br>
+            • 保存该域名用于提交到 x402scan.com
+        </div>
+    </div>
+
+    <script>
+        const walletAddress = '0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3';
+        const repoUrl = 'https://github.com/beijiang987/x402-mcp-server';
+
+        function deployToVercel() {
+            // 构建 Vercel Deploy Button URL
+            const deployUrl = `https://vercel.com/new/clone?repository-url=${encodeURIComponent(repoUrl)}&env=X402_PAYMENT_ADDRESS_BASE,X402_PAYMENT_ADDRESS_ETH,NODE_ENV&envDescription=Payment%20addresses%20and%20environment%20configuration&envLink=https://github.com/beijiang987/x402-mcp-server/blob/main/.vercel.env.txt&project-name=x402-mcp-server&repository-name=x402-mcp-server`;
+
+            // 打开 Vercel 部署页面
+            window.open(deployUrl, '_blank');
+        }
+
+        function copyEnvVars() {
+            const envVars = `X402_PAYMENT_ADDRESS_BASE=${walletAddress}
+X402_PAYMENT_ADDRESS_ETH=${walletAddress}
+NODE_ENV=production`;
+
+            navigator.clipboard.writeText(envVars).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✓ 已复制！';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
