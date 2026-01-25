@@ -1,4 +1,6 @@
 {
+  "buildCommand": "echo 'No build needed for serverless functions'",
+  "outputDirectory": "docs",
   "rewrites": [
     {
       "source": "/.well-known/x402.json",
@@ -7,10 +9,6 @@
     {
       "source": "/api/:path*",
       "destination": "/api/index"
-    },
-    {
-      "source": "/",
-      "destination": "/docs/index.html"
     }
   ],
   "headers": [
