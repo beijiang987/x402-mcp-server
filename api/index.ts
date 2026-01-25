@@ -58,11 +58,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // If no payment proof, return 402 Payment Required
     if (!paymentProof) {
       return res.status(402).json({
-        error: {
-          code: 'payment_required',
-          message: `Payment of ${priceUsd} USD required to access this endpoint`,
-          price_usd: priceUsd
-        },
+        error: `Payment of $${priceUsd} USD required to access this endpoint`,
         payment: {
           methods: ['x402'],
           networks: [
@@ -228,10 +224,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Unknown API endpoint
     return res.status(404).json({
       success: false,
-      error: {
-        message: 'API endpoint not found',
-        available_endpoints: Object.keys(PRICES)
-      }
+      error: 'API endpoint not found',
+      available_endpoints: Object.keys(PRICES)
     });
   }
 
@@ -240,11 +234,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const defaultPrice = 0.001;
 
   return res.status(402).json({
-    error: {
-      code: 'payment_required',
-      message: `This is an x402 payment-required API service. Payment of ${defaultPrice} USD required.`,
-      price_usd: defaultPrice
-    },
+    error: `This is an x402 payment-required API service. Payment of $${defaultPrice} USD required.`,
     payment: {
       methods: ['x402'],
       networks: [
