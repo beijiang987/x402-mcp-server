@@ -240,6 +240,40 @@ body {
   letter-spacing: 0.5px;
 }
 
+/* ========== x402scan Demo ========== */
+.x402-demo {
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, rgba(240, 185, 11, 0.05) 0%, rgba(252, 213, 53, 0.02) 100%);
+  border: 1px solid rgba(240, 185, 11, 0.2);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.demo-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.demo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-gold);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+}
+
+.demo-link:hover {
+  color: var(--primary-gold-hover);
+  transform: translateX(4px);
+}
+
 /* ========== 功能特性 ========== */
 .features {
   padding: var(--spacing-xl) 0;
