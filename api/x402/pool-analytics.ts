@@ -42,7 +42,50 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         bazaar: {
           discoverable: true,
           category: 'defi',
-          tags: ['liquidity', 'pool', 'analytics', 'tvl', 'apy']
+          tags: ['liquidity', 'pool', 'analytics', 'tvl', 'apy'],
+          info: {
+            input: {
+              type: 'http',
+              method: 'GET',
+              queryParams: {
+                pool_address: '0x...',
+                chain: 'ethereum'
+              }
+            },
+            output: {
+              type: 'json',
+              example: {
+                pool_address: '0x...',
+                tvl_usd: 45678901.23,
+                volume_24h: 12345678.90,
+                apy: 12.45
+              }
+            }
+          },
+          schema: {
+            input: {
+              type: 'object',
+              properties: {
+                pool_address: {
+                  type: 'string',
+                  description: 'Pool contract address'
+                },
+                chain: {
+                  type: 'string',
+                  description: 'Chain name (ethereum, base, polygon, etc.)'
+                }
+              },
+              required: ['pool_address']
+            },
+            output: {
+              type: 'object',
+              properties: {
+                tvl_usd: { type: 'number' },
+                volume_24h: { type: 'number' },
+                apy: { type: 'number' }
+              }
+            }
+          }
         }
       }
     });

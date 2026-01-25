@@ -42,7 +42,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         bazaar: {
           discoverable: true,
           category: 'defi',
-          tags: ['price', 'multichain', 'aggregation', 'dex']
+          tags: ['price', 'multichain', 'aggregation', 'dex'],
+          info: {
+            input: {
+              type: 'http',
+              method: 'GET',
+              queryParams: {
+                token_symbol: 'WETH'
+              }
+            },
+            output: {
+              type: 'json',
+              example: {
+                token_symbol: 'WETH',
+                prices: {
+                  ethereum: 1850.42,
+                  base: 1849.98,
+                  polygon: 1851.23
+                },
+                average_price: 1850.49
+              }
+            }
+          },
+          schema: {
+            input: {
+              type: 'object',
+              properties: {
+                token_symbol: {
+                  type: 'string',
+                  description: 'Token symbol (e.g., WETH, USDC)'
+                }
+              },
+              required: ['token_symbol']
+            },
+            output: {
+              type: 'object',
+              properties: {
+                token_symbol: { type: 'string' },
+                prices: { type: 'object' },
+                average_price: { type: 'number' }
+              }
+            }
+          }
         }
       }
     });

@@ -42,7 +42,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         bazaar: {
           discoverable: true,
           category: 'analytics',
-          tags: ['whale', 'transactions', 'monitoring', 'large-transfers']
+          tags: ['whale', 'transactions', 'monitoring', 'large-transfers'],
+          info: {
+            input: {
+              type: 'http',
+              method: 'GET',
+              queryParams: {
+                token_address: '0x...',
+                chain: 'ethereum',
+                min_value_usd: '100000'
+              }
+            },
+            output: {
+              type: 'json',
+              example: {
+                transactions: [{
+                  hash: '0xabc...',
+                  value_usd: 1500000,
+                  timestamp: 1234567890
+                }],
+                total_count: 1
+              }
+            }
+          },
+          schema: {
+            input: {
+              type: 'object',
+              properties: {
+                token_address: {
+                  type: 'string',
+                  description: 'Token contract address'
+                },
+                chain: {
+                  type: 'string',
+                  description: 'Chain name'
+                },
+                min_value_usd: {
+                  type: 'string',
+                  description: 'Minimum transaction value in USD'
+                }
+              },
+              required: ['token_address']
+            },
+            output: {
+              type: 'object',
+              properties: {
+                transactions: { type: 'array' },
+                total_count: { type: 'number' }
+              }
+            }
+          }
         }
       }
     });

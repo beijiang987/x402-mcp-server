@@ -42,7 +42,51 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         bazaar: {
           discoverable: true,
           category: 'security',
-          tags: ['security', 'audit', 'honeypot', 'contract-analysis']
+          tags: ['security', 'audit', 'honeypot', 'contract-analysis'],
+          info: {
+            input: {
+              type: 'http',
+              method: 'GET',
+              queryParams: {
+                contract_address: '0x...',
+                chain: 'ethereum'
+              }
+            },
+            output: {
+              type: 'json',
+              example: {
+                is_honeypot: false,
+                risk_score: 15,
+                risk_level: 'LOW',
+                findings: []
+              }
+            }
+          },
+          schema: {
+            input: {
+              type: 'object',
+              properties: {
+                contract_address: {
+                  type: 'string',
+                  description: 'Smart contract address to analyze'
+                },
+                chain: {
+                  type: 'string',
+                  description: 'Chain name'
+                }
+              },
+              required: ['contract_address']
+            },
+            output: {
+              type: 'object',
+              properties: {
+                is_honeypot: { type: 'boolean' },
+                risk_score: { type: 'number' },
+                risk_level: { type: 'string' },
+                findings: { type: 'array' }
+              }
+            }
+          }
         }
       }
     });
