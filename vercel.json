@@ -5,6 +5,10 @@
       "destination": "/api/index"
     },
     {
+      "source": "/docs",
+      "destination": "/docs.html"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/index"
     },
