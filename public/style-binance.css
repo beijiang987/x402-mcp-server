@@ -132,7 +132,7 @@ body {
 }
 
 .hero-title {
-  font-size: 56px;
+  font-size: 48px;
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: var(--spacing-md);
@@ -146,7 +146,7 @@ body {
 }
 
 .hero-subtitle {
-  font-size: 18px;
+  font-size: 16px;
   color: var(--text-secondary);
   max-width: 700px;
   margin: 0 auto var(--spacing-lg);
@@ -226,7 +226,7 @@ body {
 }
 
 .stat-value {
-  font-size: 48px;
+  font-size: 40px;
   font-weight: 800;
   color: var(--primary-gold);
   line-height: 1;
@@ -234,10 +234,10 @@ body {
 }
 
 .stat-label {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 /* ========== 功能特性 ========== */
@@ -247,7 +247,7 @@ body {
 }
 
 .section-title {
-  font-size: 42px;
+  font-size: 36px;
   font-weight: 800;
   text-align: center;
   margin-bottom: var(--spacing-sm);
@@ -256,7 +256,7 @@ body {
 .section-subtitle {
   text-align: center;
   color: var(--text-secondary);
-  font-size: 18px;
+  font-size: 16px;
   margin-bottom: var(--spacing-lg);
 }
 
@@ -283,12 +283,12 @@ body {
 }
 
 .feature-icon {
-  font-size: 48px;
+  font-size: 40px;
   margin-bottom: var(--spacing-sm);
 }
 
 .feature-card h3 {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   margin-bottom: var(--spacing-sm);
   color: var(--text-primary);
@@ -307,7 +307,7 @@ body {
   color: var(--primary-gold);
   padding: 4px 12px;
   border-radius: var(--radius-sm);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -358,13 +358,13 @@ body {
 }
 
 .pricing-name {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   margin-bottom: var(--spacing-sm);
 }
 
 .pricing-price {
-  font-size: 48px;
+  font-size: 40px;
   font-weight: 800;
   color: var(--primary-gold);
   margin-bottom: var(--spacing-xs);
@@ -372,7 +372,7 @@ body {
 
 .pricing-period {
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 13px;
   margin-bottom: var(--spacing-md);
 }
 
@@ -515,7 +515,7 @@ body {
 }
 
 .step-content h3 {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   margin-bottom: var(--spacing-sm);
   color: var(--text-primary);
@@ -532,7 +532,7 @@ body {
 .step-content code {
   color: var(--primary-gold);
   font-family: 'Monaco', 'Courier New', monospace;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -566,12 +566,12 @@ body {
 }
 
 .network-icon {
-  font-size: 48px;
+  font-size: 40px;
   margin-bottom: var(--spacing-sm);
 }
 
 .network-card h3 {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -584,14 +584,14 @@ body {
 }
 
 .cta h2 {
-  font-size: 42px;
+  font-size: 36px;
   font-weight: 800;
   margin-bottom: var(--spacing-sm);
   color: var(--text-primary);
 }
 
 .cta p {
-  font-size: 18px;
+  font-size: 16px;
   color: var(--text-secondary);
   margin-bottom: var(--spacing-lg);
 }
@@ -670,7 +670,7 @@ body {
 }
 
 .pricing-tier {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   margin-bottom: var(--spacing-sm);
   color: var(--text-primary);
@@ -681,14 +681,14 @@ body {
 }
 
 .price {
-  font-size: 48px;
+  font-size: 40px;
   font-weight: 800;
   color: var(--primary-gold);
 }
 
 .period {
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .btn-pricing {
@@ -724,11 +724,31 @@ body {
 /* ========== 响应式设计 ========== */
 @media (max-width: 768px) {
   .hero-title {
-    font-size: 36px;
+    font-size: 32px;
   }
 
   .hero-subtitle {
+    font-size: 15px;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+
+  .section-subtitle {
+    font-size: 14px;
+  }
+
+  .stat-value {
+    font-size: 32px;
+  }
+
+  .feature-card h3 {
     font-size: 16px;
+  }
+
+  .cta h2 {
+    font-size: 28px;
   }
 
   .hero-buttons {
