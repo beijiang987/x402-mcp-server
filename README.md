@@ -2,6 +2,31 @@
 
 一个用于集成 [x402 支付协议](https://www.x402.org) 的 Model Context Protocol (MCP) 服务器。该工具允许 AI 助手（如 Claude）验证支付、创建支付请求，并与基于区块链的互联网原生支付系统进行交互。
 
+---
+
+## 🚀 快速部署 HTTP API 服务器
+
+**新功能！** 现在支持 HTTP API 服务器，可被 x402scan 索引和发现。
+
+### 一键部署到 Vercel（免费）
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/beijiang987/x402-mcp-server)
+
+或按照详细指南部署：
+
+📖 **[部署检查清单](./DEPLOY_CHECKLIST.md)** - 一步步部署指南（5分钟完成）
+
+📖 **[快速部署指南](./QUICK_DEPLOY.md)** - 网页界面部署（无需命令行）
+
+**部署后您将获得：**
+- ✅ 免费的生产环境 API 服务器
+- ✅ 5 个区块链数据 API 端点
+- ✅ HTTP 402 支付协议支持
+- ✅ 在 x402scan 上可被发现
+- ✅ 自动 HTTPS 和全球 CDN
+
+---
+
 ## 什么是 x402？
 
 x402 是一个开放的互联网原生支付标准，基于 HTTP 402 状态码构建。它允许：
