@@ -12,6 +12,7 @@ import { AIAgentDataService } from './data-service.js';
 import { X402PaymentService } from './payment-service.js';
 import { PricingService } from './pricing-config.js';
 
+// 创建 Fastify 实例
 const app: FastifyInstance = Fastify({
   logger: {
     level: process.env.LOG_LEVEL || 'info'
@@ -25,27 +26,33 @@ const dataService = new AIAgentDataService();
 const paymentService = new X402PaymentService();
 const pricingService = new PricingService();
 
-// ====================
-// Plugins
-// ====================
+// 插件注册标志
+let pluginsRegistered = false;
 
-// CORS - 允许所有来源
-await app.register(cors, {
-  origin: '*',
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'X-Payment-Proof', 'X-Payment-Network', 'Authorization']
-});
+// 注册插件（懒加载，确保只注册一次）
+async function registerPlugins() {
+  if (pluginsRegistered) return;
 
-// Rate Limiting - 基础速率限制
-await app.register(rateLimit, {
-  max: 100,
-  timeWindow: '1 minute',
-  errorResponseBuilder: () => ({
-    statusCode: 429,
-    error: 'Too Many Requests',
-    message: 'Rate limit exceeded. Please try again later.'
-  })
-});
+  // CORS - 允许所有来源
+  await app.register(cors, {
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'X-Payment-Proof', 'X-Payment-Network', 'Authorization']
+  });
+
+  // Rate Limiting - 基础速率限制
+  await app.register(rateLimit, {
+    max: 100,
+    timeWindow: '1 minute',
+    errorResponseBuilder: () => ({
+      statusCode: 429,
+      error: 'Too Many Requests',
+      message: 'Rate limit exceeded. Please try again later.'
+    })
+  });
+
+  pluginsRegistered = true;
+}
 
 // ====================
 // x402 认证中间件
@@ -398,6 +405,8 @@ app.setErrorHandler((error, request, reply) => {
 
 const start = async () => {
   try {
+    await registerPlugins();
+
     const port = parseInt(process.env.PORT || '3000');
     const host = process.env.HOST || '0.0.0.0';
 
@@ -424,6 +433,17 @@ const start = async () => {
     process.exit(1);
   }
 };
+
+// ====================
+// Serverless 准备
+// ====================
+
+// 准备 app 用于 serverless 环境
+export async function prepareApp() {
+  await registerPlugins();
+  await app.ready();
+  return app;
+}
 
 // 仅在直接运行时启动服务器
 // Vercel serverless 函数将导出 app 实例
