@@ -1,10 +1,31 @@
 {
-  "version": 2,
-  "public": false,
-  "functions": {
-    "api/index.ts": {
-      "memory": 1024,
-      "maxDuration": 10
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/.well-known/x402.json",
+      "destination": "/public/.well-known/x402.json"
     }
-  }
+  ],
+  "headers": [
+    {
+      "source": "/.well-known/x402.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
+  ]
 }
