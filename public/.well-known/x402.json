@@ -3,12 +3,12 @@
   "service": {
     "name": "x402 AI Agent Data Service",
     "description": "首个专为 AI Agents 设计的链上数据服务 - Real-time blockchain data with x402 micropayments",
-    "url": "https://beijiang987.github.io/x402-mcp-server/",
+    "url": "https://x402-mcp-server.vercel.app",
     "type": "mcp-server",
     "discoverable": true
   },
   "contact": {
-    "website": "https://beijiang987.github.io/x402-mcp-server/",
+    "website": "https://x402-mcp-server.vercel.app",
     "github": "https://github.com/beijiang987/x402-mcp-server",
     "support": "support@x402-data.com"
   },
