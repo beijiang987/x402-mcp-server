@@ -1,55 +1,41 @@
 {
-  "version": 2,
-  "name": "x402-mcp-server",
-  "description": "x402 AI Agent Data Service - HTTP API Server with Payment Protocol",
-  "builds": [
-    {
-      "src": "api/**/*.ts",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/.well-known/x402.json",
-      "dest": "/docs/.well-known/x402.json",
-      "headers": {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "public, max-age=3600"
-      }
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index"
-    },
-    {
-      "src": "/(.*\\.(html|css|js|json|png|jpg|svg|ico))",
-      "dest": "/docs/$1"
-    },
-    {
-      "src": "/",
-      "dest": "/docs/index.html"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production",
-    "X402_PAYMENT_ADDRESS_BASE": "@x402_payment_address_base",
-    "X402_PAYMENT_ADDRESS_ETH": "@x402_payment_address_eth"
-  },
-  "functions": {
-    "api/**/*.ts": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  },
   "rewrites": [
+    {
+      "source": "/.well-known/x402.json",
+      "destination": "/docs/.well-known/x402.json"
+    },
     {
       "source": "/api/:path*",
       "destination": "/api/index"
+    },
+    {
+      "source": "/",
+      "destination": "/docs/index.html"
     }
   ],
-  "github": {
-    "enabled": true,
-    "autoAlias": true
+  "headers": [
+    {
+      "source": "/.well-known/x402.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "api/index.ts": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
   }
 }
