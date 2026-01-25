@@ -59,30 +59,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!paymentProof) {
       return res.status(402).json({
         error: `Payment of $${priceUsd} USD required to access this endpoint`,
-        payment: {
-          methods: ['x402'],
-          networks: [
-            {
-              network: 'eip155:8453', // Base
-              asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // USDC
-              amount: (priceUsd * 1_000_000).toString(),
-              recipient: PAYMENT_ADDRESS_BASE
-            },
-            {
-              network: 'eip155:1', // Ethereum
-              asset: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
-              amount: (priceUsd * 1_000_000).toString(),
-              recipient: PAYMENT_ADDRESS_ETH
-            }
-          ]
-        },
-        instructions: {
-          step_1: 'Send payment to the recipient address on the specified network',
-          step_2: 'Include the transaction hash in the X-Payment-Proof header',
-          step_3: 'Include the network identifier in the X-Payment-Network header (e.g., eip155:8453)',
-          step_4: 'Retry the request with payment proof headers'
-        },
-        documentation: 'https://beijiang987.github.io/x402-mcp-server/api.html'
+        accepts: [
+          {
+            network: 'eip155:8453', // Base
+            asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // USDC
+            amount: (priceUsd * 1_000_000).toString(),
+            recipient: PAYMENT_ADDRESS_BASE
+          },
+          {
+            network: 'eip155:1', // Ethereum
+            asset: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
+            amount: (priceUsd * 1_000_000).toString(),
+            recipient: PAYMENT_ADDRESS_ETH
+          }
+        ]
       });
     }
 
@@ -235,29 +225,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   return res.status(402).json({
     error: `This is an x402 payment-required API service. Payment of $${defaultPrice} USD required.`,
-    payment: {
-      methods: ['x402'],
-      networks: [
-        {
-          network: 'eip155:8453', // Base
-          asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // USDC
-          amount: (defaultPrice * 1_000_000).toString(),
-          recipient: PAYMENT_ADDRESS_BASE
-        },
-        {
-          network: 'eip155:1', // Ethereum
-          asset: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
-          amount: (defaultPrice * 1_000_000).toString(),
-          recipient: PAYMENT_ADDRESS_ETH
-        }
-      ]
-    },
-    service: {
-      name: 'x402 AI Agent Data Service',
-      version: '1.0.0',
-      discovery: '/.well-known/x402.json',
-      documentation: 'https://beijiang987.github.io/x402-mcp-server/'
-    },
-    available_endpoints: Object.keys(PRICES)
+    accepts: [
+      {
+        network: 'eip155:8453', // Base
+        asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // USDC
+        amount: (defaultPrice * 1_000_000).toString(),
+        recipient: PAYMENT_ADDRESS_BASE
+      },
+      {
+        network: 'eip155:1', // Ethereum
+        asset: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
+        amount: (defaultPrice * 1_000_000).toString(),
+        recipient: PAYMENT_ADDRESS_ETH
+      }
+    ]
   });
 }
