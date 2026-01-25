@@ -1,8 +1,9 @@
 {
   "version": "2.0",
+  "description": "Real-time blockchain data APIs for AI agents - Token prices, pool analytics, whale tracking, and contract security",
   "service": {
     "name": "x402 AI Agent Data Service",
-    "description": "首个专为 AI Agents 设计的链上数据服务 - Real-time blockchain data with x402 micropayments",
+    "description": "Real-time blockchain data with x402 micropayments - Token prices, liquidity pools, whale transactions, and smart contract safety analysis",
     "url": "https://x402-mcp-server.vercel.app",
     "type": "mcp-server",
     "discoverable": true
