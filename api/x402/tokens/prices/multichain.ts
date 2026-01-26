@@ -1,9 +1,11 @@
 /**
  * x402 Multichain Price API Endpoint
+ * With real payment verification and rate limiting
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { AIAgentDataService } from '../../../../src/data-service.js';
+import { authenticateRequest, send402Response, send429Response } from '../../../../src/api-middleware.js';
 
 const PAYMENT_ADDRESS = process.env.X402_PAYMENT_ADDRESS_BASE || '0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3';
 const PRICE_USD = 0.001;
@@ -20,29 +22,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  const paymentProof = req.headers['x-payment-proof'] as string | undefined;
+  // Authenticate and check rate limits
+  const auth = await authenticateRequest(req, PRICE_USD, 'tokens/prices/multichain');
 
-  if (!paymentProof) {
-    return res.status(402).json({
-      x402Version: 2,
-      error: 'Payment required',
-      accepts: [
-        {
-          scheme: 'exact',
-          network: 'eip155:8453',
-          amount: (PRICE_USD * 1_000_000).toString(),
-          asset: 'eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-          payTo: PAYMENT_ADDRESS,
-          maxTimeoutSeconds: 300,
-          extra: {}
-        }
-      ],
-      resource: {
-        url: 'https://x402-mcp-server.vercel.app/api/x402/tokens/prices/multichain',
-        description: 'Multi-chain price aggregation - Compare token prices across multiple chains',
-        mimeType: 'application/json'
-      },
-      extensions: {
+  // Check rate limit
+  if (auth.rateLimitExceeded && auth.resetTime) {
+    return send429Response(res, auth.resetTime, auth.tier);
+  }
+
+  // If not authenticated and no payment proof, return 402
+  if (!auth.authenticated && !req.headers['x-payment-proof']) {
+    return send402Response(
+      res,
+      PRICE_USD,
+      PAYMENT_ADDRESS,
+      'https://x402-mcp-server.vercel.app/api/x402/tokens/prices/multichain',
+      'Multi-chain price aggregation - Compare token prices across multiple chains',
+      {
         bazaar: {
           discoverable: true,
           category: 'defi',
@@ -61,36 +57,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 token_symbol: 'WETH',
                 prices: {
                   ethereum: 1850.42,
-                  base: 1849.98,
-                  polygon: 1851.23
-                },
-                average_price: 1850.49
-              }
-            }
-          },
-          schema: {
-            input: {
-              type: 'object',
-              properties: {
-                token_symbol: {
-                  type: 'string',
-                  description: 'Token symbol (e.g., WETH, USDC)'
+                  base: 1849.98
                 }
-              },
-              required: ['token_symbol']
-            },
-            output: {
-              type: 'object',
-              properties: {
-                token_symbol: { type: 'string' },
-                prices: { type: 'object' },
-                average_price: { type: 'number' }
               }
             }
           }
         }
       }
-    });
+    );
   }
 
   const query = new URL(req.url!, `http://${req.headers.host}`).searchParams;
@@ -104,8 +78,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
+  // Authenticated - return data
   try {
-    // Call real data service
     const multichainData = await dataService.getMultiChainPrice(tokenSymbol, chains);
 
     return res.status(200).json({
@@ -115,6 +89,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         prices: multichainData.prices,
         arbitrage_opportunity: multichainData.arbitrageOpportunity,
         timestamp: Date.now()
+      },
+      meta: {
+        timestamp: Date.now(),
+        tier: auth.tier,
+        payment_verified: auth.tier === 'paid',
+        tx_hash: auth.txHash,
+        warning: auth.error
       }
     });
   } catch (error: any) {

@@ -1,9 +1,11 @@
 /**
  * x402 Contract Safety API Endpoint
+ * With real payment verification and rate limiting
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { AIAgentDataService } from '../../../src/data-service.js';
+import { authenticateRequest, send402Response, send429Response } from '../../../src/api-middleware.js';
 
 const PAYMENT_ADDRESS = process.env.X402_PAYMENT_ADDRESS_BASE || '0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3';
 const PRICE_USD = 0.02;
@@ -20,29 +22,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  const paymentProof = req.headers['x-payment-proof'] as string | undefined;
+  // Authenticate and check rate limits
+  const auth = await authenticateRequest(req, PRICE_USD, 'contracts/safety');
 
-  if (!paymentProof) {
-    return res.status(402).json({
-      x402Version: 2,
-      error: 'Payment required',
-      accepts: [
-        {
-          scheme: 'exact',
-          network: 'eip155:8453',
-          amount: (PRICE_USD * 1_000_000).toString(),
-          asset: 'eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-          payTo: PAYMENT_ADDRESS,
-          maxTimeoutSeconds: 300,
-          extra: {}
-        }
-      ],
-      resource: {
-        url: 'https://x402-mcp-server.vercel.app/api/x402/contracts/safety',
-        description: 'Smart contract safety scan - Honeypot detection, risk scoring, and vulnerability analysis',
-        mimeType: 'application/json'
-      },
-      extensions: {
+  // Check rate limit
+  if (auth.rateLimitExceeded && auth.resetTime) {
+    return send429Response(res, auth.resetTime, auth.tier);
+  }
+
+  // If not authenticated and no payment proof, return 402
+  if (!auth.authenticated && !req.headers['x-payment-proof']) {
+    return send402Response(
+      res,
+      PRICE_USD,
+      PAYMENT_ADDRESS,
+      'https://x402-mcp-server.vercel.app/api/x402/contracts/safety',
+      'Smart contract safety scan - Honeypot detection, risk scoring, and vulnerability analysis',
+      {
         bazaar: {
           discoverable: true,
           category: 'security',
@@ -52,48 +48,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               type: 'http',
               method: 'GET',
               queryParams: {
-                contract_address: '0x...',
-                chain: 'ethereum'
+                contract_address: '0x...'
               }
             },
             output: {
               type: 'json',
               example: {
                 is_honeypot: false,
-                risk_score: 15,
-                risk_level: 'LOW',
-                findings: []
-              }
-            }
-          },
-          schema: {
-            input: {
-              type: 'object',
-              properties: {
-                contract_address: {
-                  type: 'string',
-                  description: 'Smart contract address to analyze'
-                },
-                chain: {
-                  type: 'string',
-                  description: 'Chain name'
-                }
-              },
-              required: ['contract_address']
-            },
-            output: {
-              type: 'object',
-              properties: {
-                is_honeypot: { type: 'boolean' },
-                risk_score: { type: 'number' },
-                risk_level: { type: 'string' },
-                findings: { type: 'array' }
+                risk_score: 15
               }
             }
           }
         }
       }
-    });
+    );
   }
 
   const query = new URL(req.url!, `http://${req.headers.host}`).searchParams;
@@ -106,8 +74,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
+  // Authenticated - return data
   try {
-    // Call real data service
     const safetyData = await dataService.scanContractSafety(contractAddress, chain);
 
     return res.status(200).json({
@@ -123,6 +91,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         risks: safetyData.risks,
         warnings: safetyData.warnings,
         timestamp: Date.now()
+      },
+      meta: {
+        timestamp: Date.now(),
+        tier: auth.tier,
+        payment_verified: auth.tier === 'paid',
+        tx_hash: auth.txHash,
+        warning: auth.error
       }
     });
   } catch (error: any) {

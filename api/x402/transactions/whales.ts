@@ -1,9 +1,11 @@
 /**
  * x402 Whale Transactions API Endpoint
+ * With real payment verification and rate limiting
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { AIAgentDataService } from '../../../src/data-service.js';
+import { authenticateRequest, send402Response, send429Response } from '../../../src/api-middleware.js';
 
 const PAYMENT_ADDRESS = process.env.X402_PAYMENT_ADDRESS_BASE || '0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3';
 const PRICE_USD = 0.005;
@@ -20,29 +22,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  const paymentProof = req.headers['x-payment-proof'] as string | undefined;
+  // Authenticate and check rate limits
+  const auth = await authenticateRequest(req, PRICE_USD, 'transactions/whales');
 
-  if (!paymentProof) {
-    return res.status(402).json({
-      x402Version: 2,
-      error: 'Payment required',
-      accepts: [
-        {
-          scheme: 'exact',
-          network: 'eip155:8453',
-          amount: (PRICE_USD * 1_000_000).toString(),
-          asset: 'eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-          payTo: PAYMENT_ADDRESS,
-          maxTimeoutSeconds: 300,
-          extra: {}
-        }
-      ],
-      resource: {
-        url: 'https://x402-mcp-server.vercel.app/api/x402/transactions/whales',
-        description: 'Whale transaction monitoring - Track large transfers and smart money movements',
-        mimeType: 'application/json'
-      },
-      extensions: {
+  // Check rate limit
+  if (auth.rateLimitExceeded && auth.resetTime) {
+    return send429Response(res, auth.resetTime, auth.tier);
+  }
+
+  // If not authenticated and no payment proof, return 402
+  if (!auth.authenticated && !req.headers['x-payment-proof']) {
+    return send402Response(
+      res,
+      PRICE_USD,
+      PAYMENT_ADDRESS,
+      'https://x402-mcp-server.vercel.app/api/x402/transactions/whales',
+      'Whale transaction monitoring - Track large transfers and smart money movements',
+      {
         bazaar: {
           discoverable: true,
           category: 'analytics',
@@ -53,7 +49,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               method: 'GET',
               queryParams: {
                 token_address: '0x...',
-                chain: 'ethereum',
                 min_value_usd: '100000'
               }
             },
@@ -62,43 +57,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               example: {
                 transactions: [{
                   hash: '0xabc...',
-                  value_usd: 1500000,
-                  timestamp: 1234567890
-                }],
-                total_count: 1
-              }
-            }
-          },
-          schema: {
-            input: {
-              type: 'object',
-              properties: {
-                token_address: {
-                  type: 'string',
-                  description: 'Token contract address'
-                },
-                chain: {
-                  type: 'string',
-                  description: 'Chain name'
-                },
-                min_value_usd: {
-                  type: 'string',
-                  description: 'Minimum transaction value in USD'
-                }
-              },
-              required: ['token_address']
-            },
-            output: {
-              type: 'object',
-              properties: {
-                transactions: { type: 'array' },
-                total_count: { type: 'number' }
+                  value_usd: 1500000
+                }]
               }
             }
           }
         }
       }
-    });
+    );
   }
 
   const query = new URL(req.url!, `http://${req.headers.host}`).searchParams;
@@ -113,8 +79,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
+  // Authenticated - return data
   try {
-    // Call real data service
     const whaleData = await dataService.getWhaleTransactions(tokenAddress, chain, minAmountUsd, limit);
 
     return res.status(200).json({
@@ -136,6 +102,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         })),
         total_count: whaleData.length,
         timestamp: Date.now()
+      },
+      meta: {
+        timestamp: Date.now(),
+        tier: auth.tier,
+        payment_verified: auth.tier === 'paid',
+        tx_hash: auth.txHash,
+        warning: auth.error
       }
     });
   } catch (error: any) {
