@@ -1,7 +1,7 @@
 // 语言切换功能
 class LanguageSwitcher {
   constructor() {
-    this.currentLang = this.getStoredLanguage() || this.detectBrowserLanguage();
+    this.currentLang = this.getStoredLanguage() || 'en';
     this.init();
   }
 
