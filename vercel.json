@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/docs.html"
+    },
+    {
       "source": "/api/x402/token-price",
       "destination": "/api/x402/token-price"
     },
