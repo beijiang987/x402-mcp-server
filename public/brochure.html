@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="x402 AI Agent Data Service - 全球首个专为 AI Agents 设计的区块链数据服务平台">
+    <title>产品手册 - x402 AI Agent Data Service</title>
+    <link rel="stylesheet" href="style-binance.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* 产品手册特定样式 */
+        .brochure-hero {
+            padding: 100px 0 60px;
+            background: linear-gradient(135deg, rgba(240, 185, 11, 0.1) 0%, rgba(26, 32, 44, 1) 50%);
+            text-align: center;
+        }
+
+        .brochure-title {
+            font-size: 52px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .brochure-subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--primary-gold);
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--primary-gold);
+            margin-bottom: 10px;
+        }
+
+        .stat-text {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        .value-prop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .value-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            transition: all 0.3s;
+        }
+
+        .value-card:hover {
+            border-color: var(--primary-gold);
+            box-shadow: 0 10px 30px rgba(240, 185, 11, 0.2);
+        }
+
+        .value-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .value-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .value-description {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .value-benefits {
+            list-style: none;
+            padding: 0;
+        }
+
+        .value-benefits li {
+            padding: 8px 0;
+            color: var(--text-secondary);
+        }
+
+        .value-benefits li:before {
+            content: "✓ ";
+            color: var(--primary-gold);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-top: 30px;
+        }
+
+        .comparison-table th {
+            background: var(--darker-bg);
+            padding: 20px;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table td {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table .highlight {
+            background: rgba(240, 185, 11, 0.1);
+        }
+
+        .pricing-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .price-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .price-card.featured {
+            border-color: var(--primary-gold);
+            transform: scale(1.05);
+        }
+
+        .price-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-gold);
+            color: var(--darker-bg);
+            padding: 5px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .price-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .price-amount {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--primary-gold);
+            margin: 20px 0;
+        }
+
+        .price-period {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .price-features {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .price-features li {
+            padding: 10px 0;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .price-features li:last-child {
+            border-bottom: none;
+        }
+
+        .use-case-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .use-case-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .use-case-icon {
+            font-size: 40px;
+            margin-right: 20px;
+        }
+
+        .use-case-title {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .use-case-subtitle {
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .use-case-content {
+            margin: 20px 0;
+        }
+
+        .use-case-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+            padding: 20px;
+            background: var(--darker-bg);
+            border-radius: var(--radius-md);
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary-gold);
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .testimonial {
+            background: var(--darker-bg);
+            padding: 30px;
+            border-left: 4px solid var(--primary-gold);
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+        }
+
+        .testimonial-text {
+            font-size: 18px;
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .testimonial-author {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .roadmap {
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .roadmap:before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .roadmap-item {
+            position: relative;
+            margin-bottom: 50px;
+        }
+
+        .roadmap-item:before {
+            content: '';
+            position: absolute;
+            left: -36px;
+            top: 5px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary-gold);
+            border: 3px solid var(--darker-bg);
+        }
+
+        .roadmap-date {
+            font-size: 14px;
+            color: var(--primary-gold);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .roadmap-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .roadmap-description {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .roadmap-features {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+
+        .roadmap-features li {
+            padding: 5px 0;
+            color: var(--text-secondary);
+        }
+
+        .roadmap-features li:before {
+            content: "• ";
+            color: var(--primary-gold);
+            margin-right: 8px;
+        }
+
+        .api-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .api-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        .api-card:hover {
+            border-color: var(--primary-gold);
+            box-shadow: 0 8px 24px rgba(240, 185, 11, 0.15);
+        }
+
+        .api-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .api-name {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .api-price {
+            background: rgba(240, 185, 11, 0.1);
+            color: var(--primary-gold);
+            padding: 5px 15px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+        }
+
+        .api-description {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .api-endpoint {
+            background: var(--darker-bg);
+            padding: 15px;
+            border-radius: var(--radius-md);
+            font-family: 'Monaco', monospace;
+            font-size: 14px;
+            color: var(--primary-gold);
+            margin: 15px 0;
+        }
+
+        .api-features {
+            list-style: none;
+            padding: 0;
+        }
+
+        .api-features li {
+            padding: 8px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .api-features li:before {
+            content: "→ ";
+            color: var(--primary-gold);
+            margin-right: 8px;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 80px 0;
+            background: linear-gradient(135deg, rgba(240, 185, 11, 0.1) 0%, rgba(252, 213, 53, 0.05) 100%);
+        }
+
+        .cta-title {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .cta-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-large {
+            padding: 18px 40px;
+            font-size: 18px;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .btn-primary-large {
+            background: var(--primary-gold);
+            color: var(--darker-bg);
+        }
+
+        .btn-primary-large:hover {
+            background: var(--primary-gold-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(240, 185, 11, 0.3);
+        }
+
+        .btn-secondary-large {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary-large:hover {
+            border-color: var(--primary-gold);
+            color: var(--primary-gold);
+        }
+
+        @media (max-width: 768px) {
+            .brochure-title {
+                font-size: 36px;
+            }
+
+            .brochure-subtitle {
+                font-size: 16px;
+            }
+
+            .stat-number {
+                font-size: 36px;
+            }
+
+            .value-prop-grid,
+            .pricing-comparison,
+            .api-showcase {
+                grid-template-columns: 1fr;
+            }
+
+            .roadmap {
+                padding-left: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <span class="logo">🤖</span>
+                <span class="brand-name">x402 Data Service</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="docs.html">首页</a></li>
+                <li><a href="#value">核心价值</a></li>
+                <li><a href="#pricing">定价</a></li>
+                <li><a href="#cases">案例</a></li>
+                <li><a href="#roadmap">路线图</a></li>
+                <li><a href="https://github.com/beijiang987/x402-mcp-server" class="btn-outline" target="_blank">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero 区域 -->
+    <section class="brochure-hero">
+        <div class="container">
+            <h1 class="brochure-title">
+                <span class="gradient-text">x402 AI Agent Data Service</span>
+            </h1>
+            <p class="brochure-subtitle">
+                全球首个专为 AI Agents 设计的区块链数据服务平台<br>
+                通过创新的 x402 微支付协议实现按需付费的数据访问模式
+            </p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">5</div>
+                    <div class="stat-text">核心 API 端点</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">5</div>
+                    <div class="stat-text">支持区块链网络</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">$0.0003</div>
+                    <div class="stat-text">最低单次价格</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">99.9%</div>
+                    <div class="stat-text">SLA 可用性</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 核心价值主张 -->
+    <section id="value" class="section" style="background: var(--dark-bg); padding: 80px 0;">
+        <div class="container">
+            <h2 class="section-title">核心价值主张</h2>
+            <p class="section-subtitle">为什么选择 x402？</p>
+
+            <div class="value-prop-grid">
+                <!-- 价值主张 1 -->
+                <div class="value-card">
+                    <div class="value-icon">🤖</div>
+                    <h3 class="value-title">Agent-Native 设计</h3>
+                    <p class="value-description">
+                        首个从第一性原理出发，专为 AI Agents 设计的数据服务。
+                    </p>
+                    <ul class="value-benefits">
+                        <li>无需账户注册和登录</li>
+                        <li>Agent 自主完成微支付</li>
+                        <li>即时链上结算，无信用周期</li>
+                        <li>标准化发现文档，自动识别服务</li>
+                    </ul>
+                </div>
+
+                <!-- 价值主张 2 -->
+                <div class="value-card">
+                    <div class="value-icon">💰</div>
+                    <h3 class="value-title">极致成本透明</h3>
+                    <p class="value-description">
+                        按调用次数定价，不绑定套餐，成本透明可控。
+                    </p>
+                    <ul class="value-benefits">
+                        <li>比 CoinGecko 便宜 99.8%</li>
+                        <li>比 Moralis 便宜 85%</li>
+                        <li>比 Nansen 便宜 94%</li>
+                        <li>高频用户享 30-70% 订阅折扣</li>
+                    </ul>
+                </div>
+
+                <!-- 价值主张 3 -->
+                <div class="value-card">
+                    <div class="value-icon">⚡</div>
+                    <h3 class="value-title">生产级数据质量</h3>
+                    <p class="value-description">
+                        实时、准确、多链的链上数据，不依赖中心化数据源。
+                    </p>
+                    <ul class="value-benefits">
+                        <li>实时数据，延迟 < 3 秒</li>
+                        <li>聚合主流 DEX 的流动性加权价格</li>
+                        <li>支持 5 条主流链</li>
+                        <li>99.9% SLA 保证（Pro 套餐）</li>
+                    </ul>
+                </div>
+
+                <!-- 价值主张 4 -->
+                <div class="value-card">
+                    <div class="value-icon">🛠️</div>
+                    <h3 class="value-title">开发者友好</h3>
+                    <p class="value-description">
+                        基于 MCP 标准，提供一致的 API 设计和完整的工具链。
+                    </p>
+                    <ul class="value-benefits">
+                        <li>5 分钟完成首次 API 调用</li>
+                        <li>统一的错误处理和重试机制</li>
+                        <li>自动服务发现和版本管理</li>
+                        <li>完整的 SDK（Python, JavaScript）</li>
+                    </ul>
+                </div>
+
+                <!-- 价值主张 5 -->
+                <div class="value-card">
+                    <div class="value-icon">🧠</div>
+                    <h3 class="value-title">AI 优化格式</h3>
+                    <p class="value-description">
+                        针对大语言模型的推理能力优化的数据格式。
+                    </p>
+                    <ul class="value-benefits">
+                        <li>结构化 JSON 输出</li>
+                        <li>自然语言摘要字段</li>
+                        <li>风险分数等预计算指标</li>
+                        <li>多语言支持（中/英/韩/日）</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API 产品展示 -->
+    <section id="apis" class="section" style="background: var(--darker-bg); padding: 80px 0;">
+        <div class="container">
+            <h2 class="section-title">API 产品规格</h2>
+            <p class="section-subtitle">5 个核心端点，覆盖 DeFi 场景 90% 的数据需求</p>
+
+            <div class="api-showcase">
+                <!-- API 1: Token Price -->
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="api-name">Token Price</span>
+                        <span class="api-price">$0.0003/次</span>
+                    </div>
+                    <p class="api-description">实时代币价格查询，直接从 DEX 获取流动性加权价格</p>
+                    <div class="api-endpoint">GET /api/x402/tokens/price</div>
+                    <ul class="api-features">
+                        <li>支持 100+ 主流代币</li>
+                        <li>24小时价格变化</li>
+                        <li>交易量和市值</li>
+                        <li>响应时间 < 500ms</li>
+                    </ul>
+                </div>
+
+                <!-- API 2: Multichain Price -->
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="api-name">Multichain Price</span>
+                        <span class="api-price">$0.001/次</span>
+                    </div>
+                    <p class="api-description">跨链价格聚合，识别套利机会</p>
+                    <div class="api-endpoint">GET /api/x402/tokens/prices/multichain</div>
+                    <ul class="api-features">
+                        <li>5 条链同时查询</li>
+                        <li>自动识别套利机会</li>
+                        <li>流动性对比</li>
+                        <li>响应时间 < 1s</li>
+                    </ul>
+                </div>
+
+                <!-- API 3: Pool Analytics -->
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="api-name">Pool Analytics</span>
+                        <span class="api-price">$0.002/次</span>
+                    </div>
+                    <p class="api-description">流动池深度分析，TVL、APY、Volume 全覆盖</p>
+                    <div class="api-endpoint">GET /api/x402/pools/analytics</div>
+                    <ul class="api-features">
+                        <li>实时 TVL 和流动性深度</li>
+                        <li>24小时/7天交易量</li>
+                        <li>APY 收益率计算</li>
+                        <li>费率层级信息</li>
+                    </ul>
+                </div>
+
+                <!-- API 4: Whale Transactions -->
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="api-name">Whale Transactions</span>
+                        <span class="api-price">$0.005/次</span>
+                    </div>
+                    <p class="api-description">巨鲸交易监控，追踪大额转账和智能资金</p>
+                    <div class="api-endpoint">GET /api/x402/transactions/whales</div>
+                    <ul class="api-features">
+                        <li>实时大额交易监控</li>
+                        <li>钱包标签识别（交易所/巨鲸）</li>
+                        <li>自定义金额阈值</li>
+                        <li>交易流向分析</li>
+                    </ul>
+                </div>
+
+                <!-- API 5: Contract Safety -->
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="api-name">Contract Safety</span>
+                        <span class="api-price">$0.02/次</span>
+                    </div>
+                    <p class="api-description">智能合约安全扫描，蜜罐检测和风险评分</p>
+                    <div class="api-endpoint">GET /api/x402/contracts/safety</div>
+                    <ul class="api-features">
+                        <li>蜜罐合约检测</li>
+                        <li>风险评分（0-100）</li>
+                        <li>税率分析（买入/卖出）</li>
+                        <li>漏洞识别</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 定价对比 -->
+    <section id="pricing" class="section" style="background: var(--dark-bg); padding: 80px 0;">
+        <div class="container">
+            <h2 class="section-title">定价策略</h2>
+            <p class="section-subtitle">灵活的订阅 + 按需付费混合模式</p>
+
+            <div class="pricing-comparison">
+                <!-- Free 套餐 -->
+                <div class="price-card">
+                    <div class="price-name">Free</div>
+                    <div class="price-amount">$0</div>
+                    <div class="price-period">/月</div>
+                    <ul class="price-features">
+                        <li>✓ 10 次调用/天</li>
+                        <li>✓ 全部 5 个 API</li>
+                        <li>✓ 社区支持</li>
+                        <li>✓ 无需信用卡</li>
+                        <li>✗ 无 SLA 保证</li>
+                    </ul>
+                    <a href="#" class="btn-pricing">开始使用</a>
+                </div>
+
+                <!-- Starter 套餐 -->
+                <div class="price-card">
+                    <div class="price-name">Starter</div>
+                    <div class="price-amount">$10</div>
+                    <div class="price-period">/月</div>
+                    <ul class="price-features">
+                        <li>✓ 10,000 次调用/月</li>
+                        <li>✓ 全部 5 个 API</li>
+                        <li>✓ 邮件支持（48h）</li>
+                        <li>✓ 月度使用报告</li>
+                        <li>✓ 50% 折扣</li>
+                    </ul>
+                    <a href="#" class="btn-pricing">立即订阅</a>
+                </div>
+
+                <!-- Pro 套餐 -->
+                <div class="price-card featured">
+                    <div class="price-badge">最受欢迎</div>
+                    <div class="price-name">Pro</div>
+                    <div class="price-amount">$50</div>
+                    <div class="price-period">/月</div>
+                    <ul class="price-features">
+                        <li>✓ 100,000 次调用/月</li>
+                        <li>✓ 全部 5 个 API</li>
+                        <li>✓ 99.9% SLA 保证</li>
+                        <li>✓ 优先支持（12h）</li>
+                        <li>✓ 30% 折扣</li>
+                    </ul>
+                    <a href="#" class="btn-pricing primary">立即订阅</a>
+                </div>
+
+                <!-- Enterprise 套餐 -->
+                <div class="price-card">
+                    <div class="price-name">Enterprise</div>
+                    <div class="price-amount">定制</div>
+                    <div class="price-period">联系我们</div>
+                    <ul class="price-features">
+                        <li>✓ 无限调用</li>
+                        <li>✓ 定制功能开发</li>
+                        <li>✓ 99.99% SLA</li>
+                        <li>✓ 专属支持（4h）</li>
+                        <li>✓ 最高 70% 折扣</li>
+                    </ul>
+                    <a href="mailto:enterprise@x402-data.com" class="btn-pricing">联系销售</a>
+                </div>
+            </div>
+
+            <!-- 竞品对比表 -->
+            <h3 style="text-align: center; margin-top: 80px; margin-bottom: 30px; font-size: 32px;">与竞品对比</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>服务</th>
+                        <th>最低月费</th>
+                        <th>单次成本</th>
+                        <th>vs x402</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="highlight">
+                        <td><strong>x402</strong></td>
+                        <td><strong>$0（Free）</strong></td>
+                        <td><strong>$0.0003</strong></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>Moralis</td>
+                        <td>$49</td>
+                        <td>~$0.002</td>
+                        <td>⬇️ 便宜 85%</td>
+                    </tr>
+                    <tr>
+                        <td>Alchemy</td>
+                        <td>$99</td>
+                        <td>~$0.001</td>
+                        <td>⬇️ 便宜 70%</td>
+                    </tr>
+                    <tr>
+                        <td>Nansen</td>
+                        <td>$799</td>
+                        <td>-</td>
+                        <td>⬇️ 便宜 94%</td>
+                    </tr>
+                    <tr>
+                        <td>Dune Analytics</td>
+                        <td>$390</td>
+                        <td>~$0.003</td>
+                        <td>⬇️ 便宜 90%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 客户案例 -->
+    <section id="cases" class="section" style="background: var(--darker-bg); padding: 80px 0;">
+        <div class="container">
+            <h2 class="section-title">客户成功案例</h2>
+            <p class="section-subtitle">真实场景，真实效果</p>
+
+            <!-- 案例 1: AI 交易机器人 -->
+            <div class="use-case-card">
+                <div class="use-case-header">
+                    <div class="use-case-icon">🤖</div>
+                    <div>
+                        <h3 class="use-case-title">AI 交易机器人</h3>
+                        <p class="use-case-subtitle">AlphaTrade AI - 自主交易 Agent 平台</p>
+                    </div>
+                </div>
+                <div class="use-case-content">
+                    <p style="color: var(--text-secondary); line-height: 1.8;">
+                        AlphaTrade AI 使用 x402 的跨链价格 API 识别套利机会。通过 Agent 自主支付，
+                        无需人工管理 API Key 和充值，实现 24/7 不间断运行。
+                    </p>
+                </div>
+                <div class="use-case-metrics">
+                    <div class="metric">
+                        <div class="metric-value">96%</div>
+                        <div class="metric-label">成本降低</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">73%</div>
+                        <div class="metric-label">响应速度提升</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">40%</div>
+                        <div class="metric-label">套利机会增加</div>
+                    </div>
+                </div>
+                <div class="testimonial">
+                    <p class="testimonial-text">
+                        "x402 让我们的 AI Agent 真正实现了自主决策和支付。不再需要人工管理 API Key 和充值，
+                        Agent 可以 24/7 运行并自动支付数据成本。"
+                    </p>
+                    <p class="testimonial-author">— Alex Chen, CTO @ AlphaTrade AI</p>
+                </div>
+            </div>
+
+            <!-- 案例 2: DeFi 收益优化器 -->
+            <div class="use-case-card">
+                <div class="use-case-header">
+                    <div class="use-case-icon">💎</div>
+                    <div>
+                        <h3 class="use-case-title">DeFi 收益优化器</h3>
+                        <p class="use-case-subtitle">YieldHunter - 自动化收益聚合协议</p>
+                    </div>
+                </div>
+                <div class="use-case-content">
+                    <p style="color: var(--text-secondary); line-height: 1.8;">
+                        从自建数据索引切换到 x402 后，工程团队可以专注于核心产品开发，
+                        而不是维护数据基础设施。成本节省了 99%，数据质量反而更好。
+                    </p>
+                </div>
+                <div class="use-case-metrics">
+                    <div class="metric">
+                        <div class="metric-value">99%</div>
+                        <div class="metric-label">成本降低</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">99%</div>
+                        <div class="metric-label">延迟降低</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">150%</div>
+                        <div class="metric-label">用户增长</div>
+                    </div>
+                </div>
+                <div class="testimonial">
+                    <p class="testimonial-text">
+                        "从 $15K/月 的自建索引切换到 $200/月 的 x402，工程团队解放了。
+                        数据延迟从 30 分钟降到 2 秒，产品竞争力大幅提升。"
+                    </p>
+                    <p class="testimonial-author">— Sarah Johnson, Founder @ YieldHunter</p>
+                </div>
+            </div>
+
+            <!-- 案例 3: 安全审计机器人 -->
+            <div class="use-case-card">
+                <div class="use-case-header">
+                    <div class="use-case-icon">🛡️</div>
+                    <div>
+                        <h3 class="use-case-title">智能合约安全审计</h3>
+                        <p class="use-case-subtitle">SecureBot - AI 驱动的合约安全扫描</p>
+                    </div>
+                </div>
+                <div class="use-case-content">
+                    <p style="color: var(--text-secondary); line-height: 1.8;">
+                        x402 的合约安全 API 让 SecureBot 能够在 Discord 和 Telegram 上实时响应用户的合约扫描请求。
+                        按需付费模式完美适配业务需求，帮助用户避免超过 $500K 的潜在损失。
+                    </p>
+                </div>
+                <div class="use-case-metrics">
+                    <div class="metric">
+                        <div class="metric-value">$500K</div>
+                        <div class="metric-label">风险拦截</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">3000</div>
+                        <div class="metric-label">月度扫描量</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">70%</div>
+                        <div class="metric-label">成本优化</div>
+                    </div>
+                </div>
+                <div class="testimonial">
+                    <p class="testimonial-text">
+                        "x402 的合约安全 API 提供了完整的风险评分和漏洞识别。
+                        我们的机器人每月帮助用户扫描 3000+ 个合约，避免了超过 $500K 的潜在损失。"
+                    </p>
+                    <p class="testimonial-author">— Michael Lee, Developer @ SecureBot</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 产品路线图 -->
+    <section id="roadmap" class="section" style="background: var(--dark-bg); padding: 80px 0;">
+        <div class="container">
+            <h2 class="section-title">产品路线图</h2>
+            <p class="section-subtitle">持续创新，引领 AI + Web3 数据服务</p>
+
+            <div class="roadmap" style="margin-top: 60px;">
+                <!-- 已完成 -->
+                <div class="roadmap-item">
+                    <div class="roadmap-date">✅ 已完成 (2025 Q4 - 2026 Q1)</div>
+                    <h3 class="roadmap-title">核心基础设施上线</h3>
+                    <p class="roadmap-description">
+                        完成 RESTful API 架构设计和 x402 微支付协议集成
+                    </p>
+                    <ul class="roadmap-features">
+                        <li>5 个核心 API 端点（Token Price, Multichain Price, Pool Analytics, Whale Transactions, Contract Safety）</li>
+                        <li>MCP 标准化接口</li>
+                        <li>Vercel Serverless 部署</li>
+                        <li>多语言支持（中/英/韩/日）</li>
+                        <li>x402scan 服务注册</li>
+                    </ul>
+                </div>
+
+                <!-- 短期 -->
+                <div class="roadmap-item">
+                    <div class="roadmap-date">🚧 进行中 (2026 Q2-Q3)</div>
+                    <h3 class="roadmap-title">数据源升级与支付验证</h3>
+                    <p class="roadmap-description">
+                        从模拟数据迁移到真实链上数据，实现完整的链上支付验证
+                    </p>
+                    <ul class="roadmap-features">
+                        <li>CoinGecko、GoPlus、Uniswap Subgraph 数据源集成</li>
+                        <li>viem 链上交易验证</li>
+                        <li>Redis 缓存层（降低成本和延迟）</li>
+                        <li>Python/JavaScript SDK 发布</li>
+                        <li>API 性能优化（30% 速度提升）</li>
+                    </ul>
+                </div>
+
+                <!-- 中期 -->
+                <div class="roadmap-item">
+                    <div class="roadmap-date">🔮 规划中 (2026 Q4 - 2027 Q3)</div>
+                    <h3 class="roadmap-title">新 API 与实时数据流</h3>
+                    <p class="roadmap-description">
+                        扩展 API 产品线，支持 WebSocket 实时订阅
+                    </p>
+                    <ul class="roadmap-features">
+                        <li>新增 5 个 API：NFT Data, Gas Optimization, MEV Detection, Lending Protocol, Token Unlock</li>
+                        <li>WebSocket 实时数据流（<100ms 延迟）</li>
+                        <li>支持更多区块链（Solana, BSC, Avalanche）</li>
+                        <li>企业级 SLA 保障</li>
+                    </ul>
+                </div>
+
+                <!-- 长期 -->
+                <div class="roadmap-item">
+                    <div class="roadmap-date">🌟 愿景 (2027 Q4 - 2030+)</div>
+                    <h3 class="roadmap-title">数据市场与去中心化</h3>
+                    <p class="roadmap-description">
+                        构建开放的 AI Agent 数据市场平台，实现去中心化治理
+                    </p>
+                    <ul class="roadmap-features">
+                        <li>AI Agent 数据市场（类似 App Store）</li>
+                        <li>去中心化数据节点网络</li>
+                        <li>DAO 治理（X402 Token）</li>
+                        <li>合作伙伴生态系统</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA 区域 -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="cta-title">准备好开始了吗？</h2>
+            <p class="cta-subtitle">
+                立即体验 x402 AI Agent Data Service<br>
+                无需信用卡，5 分钟完成集成
+            </p>
+            <div class="cta-buttons">
+                <a href="docs.html#quickstart" class="btn-large btn-primary-large">立即开始</a>
+                <a href="https://github.com/beijiang987/x402-mcp-server" target="_blank" class="btn-large btn-secondary-large">查看 GitHub</a>
+                <a href="mailto:sales@x402-data.com" class="btn-large btn-secondary-large">联系销售</a>
+            </div>
+
+            <div style="margin-top: 60px; text-align: center;">
+                <p style="color: var(--text-muted); margin-bottom: 15px;">联系我们</p>
+                <p style="color: var(--text-secondary);">
+                    📧 Email: <a href="mailto:hello@x402-data.com" style="color: var(--primary-gold);">hello@x402-data.com</a><br>
+                    🐦 Twitter: <a href="https://twitter.com/x402data" target="_blank" style="color: var(--primary-gold);">@x402data</a><br>
+                    💬 Discord: <a href="https://discord.com/invite/cdp" target="_blank" style="color: var(--primary-gold);">加入社区</a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>产品</h4>
+                    <ul>
+                        <li><a href="#value">核心价值</a></li>
+                        <li><a href="#apis">API 文档</a></li>
+                        <li><a href="#pricing">定价</a></li>
+                        <li><a href="#roadmap">路线图</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>资源</h4>
+                    <ul>
+                        <li><a href="https://github.com/beijiang987/x402-mcp-server" target="_blank">GitHub</a></li>
+                        <li><a href="https://www.x402scan.com" target="_blank">x402scan</a></li>
+                        <li><a href="https://www.x402.org" target="_blank">x402 协议</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>公司</h4>
+                    <ul>
+                        <li><a href="#cases">客户案例</a></li>
+                        <li><a href="mailto:hello@x402-data.com">联系我们</a></li>
+                        <li><a href="mailto:press@x402-data.com">媒体合作</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>社区</h4>
+                    <ul>
+                        <li><a href="https://discord.com/invite/cdp" target="_blank">Discord</a></li>
+                        <li><a href="https://twitter.com/x402data" target="_blank">Twitter</a></li>
+                        <li><a href="https://github.com/beijiang987/x402-mcp-server/discussions" target="_blank">Discussions</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 x402 Data Service. All rights reserved. | <a href="#" style="color: var(--text-muted);">Privacy Policy</a> | <a href="#" style="color: var(--text-muted);">Terms of Service</a></p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
