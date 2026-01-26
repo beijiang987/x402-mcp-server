@@ -237,14 +237,15 @@ export class UniswapSubgraphDataSource {
 
   /**
    * Get subgraph URL for chain
+   * Note: Free public endpoints with best effort availability
    */
   private getSubgraphUrl(chain: string): string {
     const urls: Record<string, string> = {
-      // Using The Graph Network decentralized endpoints
-      'ethereum': 'https://gateway.thegraph.com/api/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV',
-      'polygon': 'https://gateway.thegraph.com/api/subgraphs/id/3hCPRGf4z88VC5rsBKU5AA9FBBq5nF3jbKJG7VZCbhjm',
-      'arbitrum': 'https://gateway.thegraph.com/api/subgraphs/id/FbCGRftH4a3yZugY7TnbYgPJVEv2LvMT6oF1fxPe9aJM',
-      'optimism': 'https://gateway.thegraph.com/api/subgraphs/id/Cghf4LfVqPiFw6fp6Y5X5Ubc8UpmUhSfJL82zwiBFLaj',
+      // Using Uniswap Labs public endpoints (free, no auth required)
+      'ethereum': 'https://api.studio.thegraph.com/query/3170/uniswap-v3-subgraph/version/latest',
+      'polygon': 'https://api.thegraph.com/subgraphs/name/ianlapham/uniswap-v3-polygon',
+      'arbitrum': 'https://api.thegraph.com/subgraphs/name/ianlapham/uniswap-arbitrum-one',
+      'optimism': 'https://api.thegraph.com/subgraphs/name/ianlapham/optimism-post-regenesis',
       'base': 'https://api.studio.thegraph.com/query/48211/uniswap-v3-base/version/latest',
       'bsc': 'https://api.thegraph.com/subgraphs/name/pancakeswap/exchange-v3-bsc'
     };
