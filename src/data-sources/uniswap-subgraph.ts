@@ -240,10 +240,11 @@ export class UniswapSubgraphDataSource {
    */
   private getSubgraphUrl(chain: string): string {
     const urls: Record<string, string> = {
-      'ethereum': 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
-      'polygon': 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3-polygon',
-      'arbitrum': 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3-arbitrum',
-      'optimism': 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3-optimism',
+      // Using The Graph Network decentralized endpoints
+      'ethereum': 'https://gateway.thegraph.com/api/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV',
+      'polygon': 'https://gateway.thegraph.com/api/subgraphs/id/3hCPRGf4z88VC5rsBKU5AA9FBBq5nF3jbKJG7VZCbhjm',
+      'arbitrum': 'https://gateway.thegraph.com/api/subgraphs/id/FbCGRftH4a3yZugY7TnbYgPJVEv2LvMT6oF1fxPe9aJM',
+      'optimism': 'https://gateway.thegraph.com/api/subgraphs/id/Cghf4LfVqPiFw6fp6Y5X5Ubc8UpmUhSfJL82zwiBFLaj',
       'base': 'https://api.studio.thegraph.com/query/48211/uniswap-v3-base/version/latest',
       'bsc': 'https://api.thegraph.com/subgraphs/name/pancakeswap/exchange-v3-bsc'
     };
