@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       ],
       resource: {
-        url: 'https://x402-mcp-server.vercel.app/api/x402/contract-safety',
+        url: 'https://x402-mcp-server.vercel.app/api/x402/contracts/safety',
         description: 'Smart contract safety scan - Honeypot detection, risk scoring, and vulnerability analysis',
         mimeType: 'application/json'
       },

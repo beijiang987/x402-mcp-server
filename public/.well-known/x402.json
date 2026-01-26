@@ -19,7 +19,7 @@
     "languages": ["zh", "en", "ko", "ja"]
   },
   "endpoints": {
-    "GET /api/token-price": {
+    "GET /api/x402/tokens/price": {
       "description": "获取实时代币价格 - Real-time token price from DEX",
       "accepts": [
         {
@@ -39,7 +39,7 @@
       },
       "pricing": "$0.0003 per call"
     },
-    "GET /api/multichain-price": {
+    "GET /api/x402/tokens/prices/multichain": {
       "description": "跨链价格聚合 - Multi-chain price aggregation",
       "accepts": [
         {
@@ -54,7 +54,7 @@
       },
       "pricing": "$0.001 per call"
     },
-    "GET /api/pool-analytics": {
+    "GET /api/x402/pools/analytics": {
       "description": "流动池分析 - Liquidity pool analytics (TVL, APY, volume)",
       "accepts": [
         {
@@ -69,7 +69,7 @@
       },
       "pricing": "$0.002 per call"
     },
-    "GET /api/whale-transactions": {
+    "GET /api/x402/transactions/whales": {
       "description": "巨鲸交易监控 - Whale transaction monitoring",
       "accepts": [
         {
@@ -85,7 +85,7 @@
       },
       "pricing": "$0.005 per call"
     },
-    "GET /api/contract-safety": {
+    "GET /api/x402/contracts/safety": {
       "description": "合约安全扫描 - Smart contract safety scan (honeypot detection, risk scoring)",
       "accepts": [
         {

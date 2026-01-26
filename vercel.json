@@ -5,24 +5,44 @@
       "destination": "/docs.html"
     },
     {
+      "source": "/api/x402/tokens/price",
+      "destination": "/api/x402/tokens/price"
+    },
+    {
+      "source": "/api/x402/tokens/prices/multichain",
+      "destination": "/api/x402/tokens/prices/multichain"
+    },
+    {
+      "source": "/api/x402/pools/analytics",
+      "destination": "/api/x402/pools/analytics"
+    },
+    {
+      "source": "/api/x402/transactions/whales",
+      "destination": "/api/x402/transactions/whales"
+    },
+    {
+      "source": "/api/x402/contracts/safety",
+      "destination": "/api/x402/contracts/safety"
+    },
+    {
       "source": "/api/x402/token-price",
-      "destination": "/api/x402/token-price"
+      "destination": "/api/x402/tokens/price"
     },
     {
       "source": "/api/x402/multichain-price",
-      "destination": "/api/x402/multichain-price"
+      "destination": "/api/x402/tokens/prices/multichain"
     },
     {
       "source": "/api/x402/pool-analytics",
-      "destination": "/api/x402/pool-analytics"
+      "destination": "/api/x402/pools/analytics"
     },
     {
       "source": "/api/x402/whale-transactions",
-      "destination": "/api/x402/whale-transactions"
+      "destination": "/api/x402/transactions/whales"
     },
     {
       "source": "/api/x402/contract-safety",
-      "destination": "/api/x402/contract-safety"
+      "destination": "/api/x402/contracts/safety"
     },
     {
       "source": "/docs",

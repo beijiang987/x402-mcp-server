@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       ],
       resource: {
-        url: 'https://x402-mcp-server.vercel.app/api/x402/pool-analytics',
+        url: 'https://x402-mcp-server.vercel.app/api/x402/pools/analytics',
         description: 'Liquidity pool analytics - TVL, APY, volume, and fee metrics',
         mimeType: 'application/json'
       },

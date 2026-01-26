@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       ],
       resource: {
-        url: 'https://x402-mcp-server.vercel.app/api/x402/whale-transactions',
+        url: 'https://x402-mcp-server.vercel.app/api/x402/transactions/whales',
         description: 'Whale transaction monitoring - Track large transfers and smart money movements',
         mimeType: 'application/json'
       },
