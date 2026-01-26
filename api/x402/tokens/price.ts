@@ -1,9 +1,11 @@
 /**
  * x402 Token Price API Endpoint
+ * With real payment verification and rate limiting
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { AIAgentDataService } from '../../../src/data-service.js';
+import { authenticateRequest, send402Response, send429Response } from '../../../src/api-middleware.js';
 
 const PAYMENT_ADDRESS = process.env.X402_PAYMENT_ADDRESS_BASE || '0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3';
 const PRICE_USD = 0.0003;
@@ -22,39 +24,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  const paymentProof = req.headers['x-payment-proof'] as string | undefined;
+  // Authenticate and check rate limits
+  const auth = await authenticateRequest(
+    req,
+    PRICE_USD,
+    'tokens/price'
+  );
 
-  // If no payment proof, return 402 with x402 v2 format
-  if (!paymentProof) {
-    return res.status(402).json({
-      x402Version: 2,
-      error: 'Payment required',
-      accepts: [
-        {
-          scheme: 'exact',
-          network: 'eip155:8453',
-          amount: (PRICE_USD * 1_000_000).toString(),
-          asset: 'eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-          payTo: PAYMENT_ADDRESS,
-          maxTimeoutSeconds: 300,
-          extra: {}
-        },
-        {
-          scheme: 'exact',
-          network: 'eip155:1',
-          amount: (PRICE_USD * 1_000_000).toString(),
-          asset: 'eip155:1/erc20:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-          payTo: PAYMENT_ADDRESS,
-          maxTimeoutSeconds: 300,
-          extra: {}
-        }
-      ],
-      resource: {
-        url: 'https://x402-mcp-server.vercel.app/api/x402/tokens/price',
-        description: 'Real-time token price from DEX - Get current price, 24h change, volume, and market cap for any token',
-        mimeType: 'application/json'
-      },
-      extensions: {
+  // Check rate limit
+  if (auth.rateLimitExceeded && auth.resetTime) {
+    return send429Response(res, auth.resetTime, auth.tier);
+  }
+
+  // If not authenticated and no payment proof, return 402
+  if (!auth.authenticated && !req.headers['x-payment-proof']) {
+    return send402Response(
+      res,
+      PRICE_USD,
+      PAYMENT_ADDRESS,
+      'https://x402-mcp-server.vercel.app/api/x402/tokens/price',
+      'Real-time token price from DEX - Get current price, 24h change, volume, and market cap for any token',
+      {
         bazaar: {
           discoverable: true,
           category: 'defi',
@@ -74,18 +64,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 token_address: '0x...',
                 chain: 'ethereum',
                 price_usd: 1850.42,
-                price_change_24h: 2.34,
-                volume_24h: 1234567890,
-                market_cap: 223000000000
+                volume_24h: 1234567890
               }
             }
           }
         }
       }
-    });
+    );
   }
 
-  // Payment proof provided - return data
+  // Authenticated - return data
   const query = new URL(req.url!, `http://${req.headers.host}`).searchParams;
   const tokenAddress = query.get('token_address');
   const chain = query.get('chain') || 'ethereum';
@@ -115,7 +103,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       meta: {
         timestamp: Date.now(),
         cached: false,
-        payment_verified: true
+        tier: auth.tier,
+        payment_verified: auth.tier === 'paid',
+        tx_hash: auth.txHash,
+        warning: auth.error // Include any warnings about payment verification
       }
     });
   } catch (error: any) {

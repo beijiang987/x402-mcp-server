@@ -25,7 +25,8 @@
     "@x402/fetch": "latest",
     "fastify": "^4.25.0",
     "@fastify/cors": "^9.0.0",
-    "@fastify/rate-limit": "^9.0.0"
+    "@fastify/rate-limit": "^9.0.0",
+    "viem": "^2.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
