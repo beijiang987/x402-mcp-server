@@ -1,7 +1,16 @@
 /**
  * AI Agent 数据服务层
  * 提供实时链上数据、DEX 分析、价格聚合等服务
+ *
+ * 集成真实数据源：
+ * - CoinGecko API (代币价格)
+ * - GoPlus Security (合约安全)
+ * - Uniswap Subgraph (流动池和交易)
  */
+
+import { CoinGeckoDataSource } from './data-sources/coingecko.js';
+import { GoPlusDataSource } from './data-sources/goplus.js';
+import { UniswapSubgraphDataSource } from './data-sources/uniswap-subgraph.js';
 
 export interface TokenPrice {
   address: string;
@@ -70,22 +79,19 @@ export interface MultiChainPrice {
   };
 }
 
-export class DataService {
-  private rpcUrls: Map<string, string> = new Map();
+export class AIAgentDataService {
+  private coingecko: CoinGeckoDataSource;
+  private goplus: GoPlusDataSource;
+  private uniswap: UniswapSubgraphDataSource;
+
   private cache: Map<string, { data: any; timestamp: number }> = new Map();
   private CACHE_TTL = 10000; // 10 seconds
 
   constructor() {
-    this.initializeRpcUrls();
-  }
-
-  private initializeRpcUrls() {
-    // 从环境变量读取 RPC URLs
-    this.rpcUrls.set('ethereum', process.env.X402_ETH_RPC_URL || 'https://eth.llamarpc.com');
-    this.rpcUrls.set('base', process.env.X402_BASE_RPC_URL || 'https://mainnet.base.org');
-    this.rpcUrls.set('polygon', process.env.X402_POLYGON_RPC_URL || 'https://polygon-rpc.com');
-    this.rpcUrls.set('arbitrum', process.env.X402_ARBITRUM_RPC_URL || 'https://arb1.arbitrum.io/rpc');
-    this.rpcUrls.set('optimism', process.env.X402_OPTIMISM_RPC_URL || 'https://mainnet.optimism.io');
+    // Initialize data sources
+    this.coingecko = new CoinGeckoDataSource(process.env.COINGECKO_API_KEY);
+    this.goplus = new GoPlusDataSource();
+    this.uniswap = new UniswapSubgraphDataSource();
   }
 
   /**
@@ -97,12 +103,26 @@ export class DataService {
     if (cached) return cached;
 
     try {
-      // 调用多个数据源并聚合
-      const price = await this.fetchTokenPriceFromDex(tokenAddress, chain);
+      // Call CoinGecko API
+      const priceData = await this.coingecko.getTokenPrice(tokenAddress, chain);
 
-      this.setCache(cacheKey, price);
-      return price;
+      // Map to our interface
+      const result: TokenPrice = {
+        address: priceData.token_address,
+        symbol: 'TOKEN', // CoinGecko doesn't return symbol, would need separate call
+        price: priceData.price_usd,
+        priceUsd: priceData.price_usd,
+        liquidity: 0, // Not provided by CoinGecko simple price endpoint
+        volume24h: priceData.volume_24h,
+        chain: priceData.chain,
+        source: 'CoinGecko',
+        timestamp: priceData.last_updated,
+      };
+
+      this.setCache(cacheKey, result);
+      return result;
     } catch (error) {
+      console.error('Failed to fetch token price:', error);
       throw new Error(`Failed to fetch token price: ${error}`);
     }
   }
@@ -119,36 +139,23 @@ export class DataService {
     if (cached) return cached;
 
     try {
-      const tokenAddresses = this.getTokenAddressBySymbol(tokenSymbol);
-      const pricePromises = chains.map(async (chain) => {
-        const address = tokenAddresses[chain];
-        if (!address) return null;
+      // Call CoinGecko for multichain prices
+      const pricesData = await this.coingecko.getMultichainPrices(tokenSymbol, chains);
 
-        try {
-          const price = await this.getTokenPrice(address, chain);
-          return {
-            chain,
-            data: {
-              price: price.price,
-              liquidity: price.liquidity,
-              bestDex: price.source,
-            },
-          };
-        } catch {
-          return null;
-        }
-      });
-
-      const results = await Promise.all(pricePromises);
+      // Map to our format
       const prices: any = {};
-
-      results.forEach((result) => {
-        if (result) {
-          prices[result.chain] = result.data;
+      for (const chain of chains) {
+        const priceData = pricesData[chain];
+        if (priceData) {
+          prices[chain] = {
+            price: priceData.price_usd,
+            liquidity: 0, // Not available from simple endpoint
+            bestDex: 'DEX'
+          };
         }
-      });
+      }
 
-      // 计算套利机会
+      // Calculate arbitrage opportunity
       const arbitrageOpportunity = this.calculateArbitrage(prices);
 
       const result: MultiChainPrice = {
@@ -160,6 +167,7 @@ export class DataService {
       this.setCache(cacheKey, result);
       return result;
     } catch (error) {
+      console.error('Failed to fetch multi-chain price:', error);
       throw new Error(`Failed to fetch multi-chain price: ${error}`);
     }
   }
@@ -173,12 +181,28 @@ export class DataService {
     if (cached) return cached;
 
     try {
-      // 这里需要调用 Uniswap V3 subgraph 或类似服务
-      const analytics = await this.fetchPoolData(poolAddress, chain);
+      // Call Uniswap Subgraph
+      const poolData = await this.uniswap.getPoolAnalytics(poolAddress, chain);
 
-      this.setCache(cacheKey, analytics);
-      return analytics;
+      // Map to our interface
+      const result: PoolAnalytics = {
+        poolAddress: poolData.pool_address,
+        token0: `${poolData.token0.symbol} (${poolData.token0.address})`,
+        token1: `${poolData.token1.symbol} (${poolData.token1.address})`,
+        tvl: poolData.tvl_usd,
+        volume24h: poolData.volume_24h_usd,
+        volume7d: poolData.volume_7d_usd,
+        fee24h: (poolData.volume_24h_usd * poolData.fee_tier) / 1000000, // Convert basis points to fee
+        apy: poolData.apy,
+        impermanentLoss: 0, // Would need to calculate based on price changes
+        chain: poolData.chain,
+        dex: 'Uniswap V3',
+      };
+
+      this.setCache(cacheKey, result);
+      return result;
     } catch (error) {
+      console.error('Failed to fetch pool analytics:', error);
       throw new Error(`Failed to fetch pool analytics: ${error}`);
     }
   }
@@ -197,17 +221,32 @@ export class DataService {
     if (cached) return cached;
 
     try {
-      // 这里需要监听链上事件或查询 subgraph
-      const transactions = await this.fetchWhaleTransactions(
+      // Call Uniswap Subgraph for whale transactions
+      const transactions = await this.uniswap.getWhaleTransactions(
         tokenAddress,
         chain,
         minAmountUsd,
         limit
       );
 
-      this.setCache(cacheKey, transactions, 5000); // 5 秒缓存
-      return transactions;
+      // Map to our interface
+      const result: WhaleTransaction[] = transactions.map(tx => ({
+        hash: tx.hash,
+        from: tx.from,
+        to: tx.pool_address, // In swaps, "to" is the pool
+        token: tx.token_address,
+        amount: tx.amount_tokens,
+        amountUsd: tx.amount_usd,
+        type: tx.type as 'buy' | 'sell',
+        timestamp: tx.timestamp,
+        chain: chain,
+        dex: 'Uniswap V3',
+      }));
+
+      this.setCache(cacheKey, result, 5000); // 5 second cache for whale txs
+      return result;
     } catch (error) {
+      console.error('Failed to fetch whale transactions:', error);
       throw new Error(`Failed to fetch whale transactions: ${error}`);
     }
   }
@@ -221,110 +260,33 @@ export class DataService {
     if (cached) return cached;
 
     try {
-      const safety = await this.analyzeContractSafety(contractAddress, chain);
+      // Call GoPlus Security API
+      const safetyData = await this.goplus.scanContract(contractAddress, chain);
 
-      this.setCache(cacheKey, safety, 300000); // 5 分钟缓存
-      return safety;
+      // Map to our interface
+      const result: ContractSafety = {
+        address: safetyData.contract_address,
+        riskScore: safetyData.risk_score,
+        isVerified: safetyData.is_open_source,
+        hasProxies: safetyData.is_proxy,
+        hasHoneypot: safetyData.is_honeypot,
+        ownershipRenounced: !safetyData.can_take_back_ownership,
+        risks: safetyData.warnings.filter(w =>
+          w.includes('honeypot') || w.includes('balance') || w.includes('destruct')
+        ),
+        warnings: safetyData.warnings,
+        chain: safetyData.chain,
+      };
+
+      this.setCache(cacheKey, result, 300000); // 5 minute cache for safety scans
+      return result;
     } catch (error) {
+      console.error('Failed to scan contract safety:', error);
       throw new Error(`Failed to scan contract safety: ${error}`);
     }
   }
 
-  // ========== 私有方法：数据获取 ==========
-
-  private async fetchTokenPriceFromDex(
-    tokenAddress: string,
-    chain: string
-  ): Promise<TokenPrice> {
-    // 这里实现实际的 DEX 数据获取逻辑
-    // 可以使用：
-    // 1. Uniswap V3 SDK
-    // 2. DEX Aggregator API (1inch, 0x)
-    // 3. 直接查询链上合约
-
-    // 临时返回模拟数据
-    return {
-      address: tokenAddress,
-      symbol: 'MOCK',
-      price: 1850.50,
-      priceUsd: 1850.50,
-      liquidity: 5000000,
-      volume24h: 1200000,
-      chain,
-      source: 'Uniswap V3',
-      timestamp: Date.now(),
-    };
-  }
-
-  private async fetchPoolData(poolAddress: string, chain: string): Promise<PoolAnalytics> {
-    // 实现池子数据获取
-    return {
-      poolAddress,
-      token0: '0x...',
-      token1: '0x...',
-      tvl: 10000000,
-      volume24h: 500000,
-      volume7d: 3500000,
-      fee24h: 1500,
-      apy: 12.5,
-      impermanentLoss: 0.5,
-      chain,
-      dex: 'Uniswap V3',
-    };
-  }
-
-  private async fetchWhaleTransactions(
-    tokenAddress: string,
-    chain: string,
-    minAmountUsd: number,
-    limit: number
-  ): Promise<WhaleTransaction[]> {
-    // 实现巨鲸交易监控
-    return [];
-  }
-
-  private async analyzeContractSafety(
-    contractAddress: string,
-    chain: string
-  ): Promise<ContractSafety> {
-    // 实现合约安全分析
-    // 可以集成：GoPlus Security API, Honeypot.is 等
-    return {
-      address: contractAddress,
-      riskScore: 25,
-      isVerified: true,
-      hasProxies: false,
-      hasHoneypot: false,
-      ownershipRenounced: true,
-      risks: [],
-      warnings: ['High concentration in top 10 holders'],
-      chain,
-    };
-  }
-
   // ========== 辅助方法 ==========
-
-  private getTokenAddressBySymbol(symbol: string): { [chain: string]: string } {
-    // 常见代币的跨链地址映射
-    const tokenMap: { [key: string]: { [chain: string]: string } } = {
-      USDC: {
-        ethereum: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        base: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-        polygon: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
-      },
-      WETH: {
-        ethereum: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-        base: '0x4200000000000000000000000000000000000006',
-        polygon: '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619',
-      },
-      USDT: {
-        ethereum: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        polygon: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
-      },
-    };
-
-    return tokenMap[symbol.toUpperCase()] || {};
-  }
 
   private calculateArbitrage(prices: any): any {
     const chains = Object.keys(prices);
@@ -338,8 +300,11 @@ export class DataService {
       for (const sellChain of chains) {
         if (buyChain === sellChain) continue;
 
-        const buyPrice = prices[buyChain].price;
-        const sellPrice = prices[sellChain].price;
+        const buyPrice = prices[buyChain]?.price;
+        const sellPrice = prices[sellChain]?.price;
+
+        if (!buyPrice || !sellPrice) continue;
+
         const profit = ((sellPrice - buyPrice) / buyPrice) * 100;
 
         if (profit > maxProfit) {
@@ -351,7 +316,7 @@ export class DataService {
     }
 
     if (maxProfit > 0.5) {
-      // 至少 0.5% 的套利空间才值得
+      // At least 0.5% arbitrage opportunity
       return {
         buyChain: bestBuyChain,
         sellChain: bestSellChain,
@@ -382,7 +347,7 @@ export class DataService {
       timestamp: Date.now(),
     });
 
-    // 自动清理过期缓存
+    // Auto-cleanup expired cache
     setTimeout(() => {
       this.cache.delete(key);
     }, ttl || this.CACHE_TTL);
@@ -395,3 +360,6 @@ export class DataService {
     this.cache.clear();
   }
 }
+
+// Maintain backward compatibility
+export class DataService extends AIAgentDataService {}
