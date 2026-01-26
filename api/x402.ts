@@ -104,6 +104,32 @@ export default async function handler(
         subcategory: 'data-services',
         tags: ['blockchain', 'defi', 'analytics', 'ai-agents', 'multi-chain', 'mcp'],
 
+        // Input/Output schema (required by x402scan)
+        info: {
+          input: {
+            type: 'http',
+            method: 'GET',
+            queryParams: {}
+          },
+          output: {
+            type: 'json',
+            example: {
+              x402Version: 2,
+              error: 'Payment required',
+              message: 'x402 AI Agent Data Service discovery endpoint',
+              discovery: {
+                url: 'https://x402-mcp-server.vercel.app/.well-known/x402.json',
+                description: 'Service discovery document'
+              },
+              service: {
+                name: 'x402 AI Agent Data Service',
+                endpoints: 5,
+                networks: ['ethereum', 'base', 'bsc', 'polygon', 'arbitrum', 'optimism']
+              }
+            }
+          }
+        },
+
         // Discovery document link
         discoveryDocument: `${getBaseUrl(req)}/.well-known/x402.json`,
 
