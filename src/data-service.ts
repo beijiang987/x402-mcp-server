@@ -11,6 +11,8 @@
 import { CoinGeckoDataSource } from './data-sources/coingecko.js';
 import { GoPlusDataSource } from './data-sources/goplus.js';
 import { UniswapSubgraphDataSource } from './data-sources/uniswap-subgraph.js';
+import { DeFiLlamaDataSource } from './data-sources/defillama.js';
+import { DexScreenerDataSource } from './data-sources/dexscreener.js';
 
 export interface TokenPrice {
   address: string;
@@ -83,6 +85,8 @@ export class AIAgentDataService {
   private coingecko: CoinGeckoDataSource;
   private goplus: GoPlusDataSource;
   private uniswap: UniswapSubgraphDataSource;
+  private defillama: DeFiLlamaDataSource;
+  private dexscreener: DexScreenerDataSource;
 
   private cache: Map<string, { data: any; timestamp: number }> = new Map();
   private CACHE_TTL = 10000; // 10 seconds
@@ -92,6 +96,8 @@ export class AIAgentDataService {
     this.coingecko = new CoinGeckoDataSource(process.env.COINGECKO_API_KEY);
     this.goplus = new GoPlusDataSource();
     this.uniswap = new UniswapSubgraphDataSource();
+    this.defillama = new DeFiLlamaDataSource();
+    this.dexscreener = new DexScreenerDataSource();
   }
 
   /**
@@ -174,41 +180,92 @@ export class AIAgentDataService {
 
   /**
    * 获取流动池分析数据
+   * Uses multiple data sources with fallback
    */
   async getPoolAnalytics(poolAddress: string, chain: string = 'ethereum'): Promise<PoolAnalytics> {
     const cacheKey = `pool_${chain}_${poolAddress}`;
     const cached = this.getCache(cacheKey);
     if (cached) return cached;
 
+    let result: PoolAnalytics;
+
+    // Try Uniswap Subgraph first
     try {
-      // Call Uniswap Subgraph
       const poolData = await this.uniswap.getPoolAnalytics(poolAddress, chain);
 
-      // Map to our interface
-      const result: PoolAnalytics = {
+      result = {
         poolAddress: poolData.pool_address,
         token0: `${poolData.token0.symbol} (${poolData.token0.address})`,
         token1: `${poolData.token1.symbol} (${poolData.token1.address})`,
         tvl: poolData.tvl_usd,
         volume24h: poolData.volume_24h_usd,
         volume7d: poolData.volume_7d_usd,
-        fee24h: (poolData.volume_24h_usd * poolData.fee_tier) / 1000000, // Convert basis points to fee
+        fee24h: (poolData.volume_24h_usd * poolData.fee_tier) / 1000000,
         apy: poolData.apy,
-        impermanentLoss: 0, // Would need to calculate based on price changes
+        impermanentLoss: 0,
         chain: poolData.chain,
         dex: 'Uniswap V3',
       };
 
       this.setCache(cacheKey, result);
       return result;
-    } catch (error) {
-      console.error('Failed to fetch pool analytics:', error);
-      throw new Error(`Failed to fetch pool analytics: ${error}`);
+    } catch (uniswapError) {
+      console.warn('Uniswap Subgraph failed, trying fallback sources:', uniswapError);
+    }
+
+    // Fallback 1: Try DeFiLlama
+    try {
+      const poolData = await this.defillama.getPoolAnalytics(poolAddress, chain);
+
+      result = {
+        poolAddress: poolData.pool_address,
+        token0: poolData.underlying_tokens[0] || 'Token0',
+        token1: poolData.underlying_tokens[1] || 'Token1',
+        tvl: poolData.tvl_usd,
+        volume24h: poolData.volume_usd_1d,
+        volume7d: poolData.volume_usd_7d,
+        fee24h: poolData.volume_usd_1d * 0.003, // Estimate 0.3% fee
+        apy: poolData.apy,
+        impermanentLoss: 0,
+        chain: poolData.chain,
+        dex: poolData.project,
+      };
+
+      this.setCache(cacheKey, result);
+      return result;
+    } catch (defillamaError) {
+      console.warn('DeFiLlama failed, trying DEX Screener:', defillamaError);
+    }
+
+    // Fallback 2: Try DEX Screener
+    try {
+      const pairData = await this.dexscreener.getPairAnalytics(poolAddress);
+
+      result = {
+        poolAddress: pairData.pair_address,
+        token0: `${pairData.base_token.symbol} (${pairData.base_token.address})`,
+        token1: `${pairData.quote_token.symbol} (${pairData.quote_token.address})`,
+        tvl: pairData.liquidity_usd,
+        volume24h: pairData.volume_24h,
+        volume7d: pairData.volume_24h * 7, // Estimate 7d volume
+        fee24h: pairData.volume_24h * 0.003, // Estimate 0.3% fee
+        apy: 0, // DEX Screener doesn't provide APY
+        impermanentLoss: 0,
+        chain: pairData.chain,
+        dex: pairData.dex,
+      };
+
+      this.setCache(cacheKey, result);
+      return result;
+    } catch (dexscreenerError) {
+      console.error('All pool analytics sources failed');
+      throw new Error(`Failed to fetch pool analytics: ${dexscreenerError}`);
     }
   }
 
   /**
    * 监控巨鲸交易
+   * Uses multiple data sources with fallback
    */
   async getWhaleTransactions(
     tokenAddress: string,
@@ -220,8 +277,10 @@ export class AIAgentDataService {
     const cached = this.getCache(cacheKey);
     if (cached) return cached;
 
+    let result: WhaleTransaction[];
+
+    // Try Uniswap Subgraph first
     try {
-      // Call Uniswap Subgraph for whale transactions
       const transactions = await this.uniswap.getWhaleTransactions(
         tokenAddress,
         chain,
@@ -229,11 +288,10 @@ export class AIAgentDataService {
         limit
       );
 
-      // Map to our interface
-      const result: WhaleTransaction[] = transactions.map(tx => ({
+      result = transactions.map(tx => ({
         hash: tx.hash,
         from: tx.from,
-        to: tx.pool_address, // In swaps, "to" is the pool
+        to: tx.pool_address,
         token: tx.token_address,
         amount: tx.amount_tokens,
         amountUsd: tx.amount_usd,
@@ -243,11 +301,39 @@ export class AIAgentDataService {
         dex: 'Uniswap V3',
       }));
 
-      this.setCache(cacheKey, result, 5000); // 5 second cache for whale txs
+      this.setCache(cacheKey, result, 5000);
       return result;
-    } catch (error) {
-      console.error('Failed to fetch whale transactions:', error);
-      throw new Error(`Failed to fetch whale transactions: ${error}`);
+    } catch (uniswapError) {
+      console.warn('Uniswap Subgraph failed, trying DEX Screener:', uniswapError);
+    }
+
+    // Fallback: Try DEX Screener
+    try {
+      const transactions = await this.dexscreener.getWhaleTransactions(
+        tokenAddress,
+        chain,
+        minAmountUsd,
+        limit
+      );
+
+      result = transactions.map(tx => ({
+        hash: tx.hash,
+        from: tx.from,
+        to: tx.to,
+        token: tokenAddress,
+        amount: tx.amount_tokens,
+        amountUsd: tx.amount_usd,
+        type: tx.type,
+        timestamp: tx.timestamp,
+        chain: chain,
+        dex: 'DEX Aggregated',
+      }));
+
+      this.setCache(cacheKey, result, 5000);
+      return result;
+    } catch (dexscreenerError) {
+      console.error('All whale transaction sources failed');
+      throw new Error(`Failed to fetch whale transactions: ${dexscreenerError}`);
     }
   }
 
