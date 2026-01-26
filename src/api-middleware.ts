@@ -4,7 +4,7 @@
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { paymentVerification } from './payment-verification.js';
-import { rateLimiter } from './rate-limiter.js';
+import { redisRateLimiter } from './redis-rate-limiter.js';
 
 export interface AuthResult {
   authenticated: boolean;
@@ -27,8 +27,8 @@ export async function authenticateRequest(
 
   // No payment proof - check free tier rate limit
   if (!paymentProof) {
-    const identifier = rateLimiter.getIdentifier(req);
-    const rateCheck = rateLimiter.checkLimit(identifier, 'free');
+    const identifier = redisRateLimiter.getIdentifier(req);
+    const rateCheck = await redisRateLimiter.checkLimit(identifier, 'free');
 
     if (!rateCheck.allowed) {
       return {
@@ -55,8 +55,8 @@ export async function authenticateRequest(
 
   if (!verification.valid) {
     // Invalid payment - check free tier rate limit
-    const identifier = rateLimiter.getIdentifier(req);
-    const rateCheck = rateLimiter.checkLimit(identifier, 'free');
+    const identifier = redisRateLimiter.getIdentifier(req);
+    const rateCheck = await redisRateLimiter.checkLimit(identifier, 'free');
 
     if (!rateCheck.allowed) {
       return {
@@ -76,8 +76,8 @@ export async function authenticateRequest(
   }
 
   // Valid payment - check paid tier rate limit
-  const identifier = rateLimiter.getIdentifier(req, verification.txHash);
-  const rateCheck = rateLimiter.checkLimit(identifier, 'paid');
+  const identifier = redisRateLimiter.getIdentifier(req, verification.txHash);
+  const rateCheck = await redisRateLimiter.checkLimit(identifier, 'paid');
 
   if (!rateCheck.allowed) {
     return {
