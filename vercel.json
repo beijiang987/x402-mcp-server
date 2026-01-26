@@ -5,6 +5,10 @@
       "destination": "/docs.html"
     },
     {
+      "source": "/api/x402",
+      "destination": "/api/x402"
+    },
+    {
       "source": "/api/x402/tokens/price",
       "destination": "/api/x402/tokens/price"
     },
