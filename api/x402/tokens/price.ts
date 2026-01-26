@@ -3,9 +3,13 @@
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { AIAgentDataService } from '../../../src/data-service.js';
 
 const PAYMENT_ADDRESS = process.env.X402_PAYMENT_ADDRESS_BASE || '0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3';
 const PRICE_USD = 0.0003;
+
+// Initialize data service
+const dataService = new AIAgentDataService();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers
@@ -86,21 +90,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const tokenAddress = query.get('token_address');
   const chain = query.get('chain') || 'ethereum';
 
-  return res.status(200).json({
-    success: true,
-    data: {
-      token_address: tokenAddress,
-      chain: chain,
-      price_usd: 1850.42,
-      price_change_24h: 2.34,
-      volume_24h: 1234567890,
-      market_cap: 223000000000,
-      last_updated: Date.now()
-    },
-    meta: {
-      timestamp: Date.now(),
-      cached: false,
-      payment_verified: true
-    }
-  });
+  if (!tokenAddress) {
+    return res.status(400).json({
+      error: 'Missing required parameter: token_address'
+    });
+  }
+
+  try {
+    // Call real data service
+    const tokenData = await dataService.getTokenPrice(tokenAddress, chain);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        token_address: tokenData.address,
+        symbol: tokenData.symbol,
+        chain: tokenData.chain,
+        price_usd: tokenData.priceUsd,
+        liquidity: tokenData.liquidity,
+        volume_24h: tokenData.volume24h,
+        source: tokenData.source,
+        last_updated: tokenData.timestamp
+      },
+      meta: {
+        timestamp: Date.now(),
+        cached: false,
+        payment_verified: true
+      }
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      error: 'Failed to fetch token price',
+      message: error.message
+    });
+  }
 }

@@ -3,9 +3,13 @@
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { AIAgentDataService } from '../../../src/data-service.js';
 
 const PAYMENT_ADDRESS = process.env.X402_PAYMENT_ADDRESS_BASE || '0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3';
 const PRICE_USD = 0.02;
+
+// Initialize data service
+const dataService = new AIAgentDataService();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -96,17 +100,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const contractAddress = query.get('contract_address');
   const chain = query.get('chain') || 'ethereum';
 
-  return res.status(200).json({
-    success: true,
-    data: {
-      contract_address: contractAddress,
-      chain: chain,
-      is_honeypot: false,
-      is_proxy: false,
-      risk_score: 15,
-      risk_level: 'LOW',
-      findings: [],
-      timestamp: Date.now()
-    }
-  });
+  if (!contractAddress) {
+    return res.status(400).json({
+      error: 'Missing required parameter: contract_address'
+    });
+  }
+
+  try {
+    // Call real data service
+    const safetyData = await dataService.scanContractSafety(contractAddress, chain);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        contract_address: safetyData.address,
+        chain: safetyData.chain,
+        risk_score: safetyData.riskScore,
+        is_verified: safetyData.isVerified,
+        has_proxies: safetyData.hasProxies,
+        has_honeypot: safetyData.hasHoneypot,
+        ownership_renounced: safetyData.ownershipRenounced,
+        risks: safetyData.risks,
+        warnings: safetyData.warnings,
+        timestamp: Date.now()
+      }
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      error: 'Failed to scan contract safety',
+      message: error.message
+    });
+  }
 }

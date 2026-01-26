@@ -3,9 +3,13 @@
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { AIAgentDataService } from '../../../../src/data-service.js';
 
 const PAYMENT_ADDRESS = process.env.X402_PAYMENT_ADDRESS_BASE || '0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3';
 const PRICE_USD = 0.001;
+
+// Initialize data service
+const dataService = new AIAgentDataService();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -91,20 +95,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const query = new URL(req.url!, `http://${req.headers.host}`).searchParams;
   const tokenSymbol = query.get('token_symbol');
+  const chainsParam = query.get('chains');
+  const chains = chainsParam ? chainsParam.split(',') : ['ethereum', 'base', 'polygon'];
 
-  return res.status(200).json({
-    success: true,
-    data: {
-      token_symbol: tokenSymbol,
-      prices: {
-        ethereum: 1850.42,
-        base: 1849.98,
-        polygon: 1851.23,
-        arbitrum: 1850.15,
-        optimism: 1850.67
-      },
-      average_price: 1850.49,
-      timestamp: Date.now()
-    }
-  });
+  if (!tokenSymbol) {
+    return res.status(400).json({
+      error: 'Missing required parameter: token_symbol'
+    });
+  }
+
+  try {
+    // Call real data service
+    const multichainData = await dataService.getMultiChainPrice(tokenSymbol, chains);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        token_symbol: multichainData.token,
+        prices: multichainData.prices,
+        arbitrage_opportunity: multichainData.arbitrageOpportunity,
+        timestamp: Date.now()
+      }
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      error: 'Failed to fetch multichain prices',
+      message: error.message
+    });
+  }
 }

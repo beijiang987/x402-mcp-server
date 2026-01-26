@@ -3,9 +3,13 @@
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { AIAgentDataService } from '../../../src/data-service.js';
 
 const PAYMENT_ADDRESS = process.env.X402_PAYMENT_ADDRESS_BASE || '0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3';
 const PRICE_USD = 0.002;
+
+// Initialize data service
+const dataService = new AIAgentDataService();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -95,18 +99,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const poolAddress = query.get('pool_address');
   const chain = query.get('chain') || 'ethereum';
 
-  return res.status(200).json({
-    success: true,
-    data: {
-      pool_address: poolAddress,
-      chain: chain,
-      tvl_usd: 45678901.23,
-      volume_24h: 12345678.90,
-      apy: 12.45,
-      fee_tier: 0.3,
-      token0: 'WETH',
-      token1: 'USDC',
-      timestamp: Date.now()
-    }
-  });
+  if (!poolAddress) {
+    return res.status(400).json({
+      error: 'Missing required parameter: pool_address'
+    });
+  }
+
+  try {
+    // Call real data service
+    const poolData = await dataService.getPoolAnalytics(poolAddress, chain);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        pool_address: poolData.poolAddress,
+        chain: poolData.chain,
+        token0: poolData.token0,
+        token1: poolData.token1,
+        tvl_usd: poolData.tvl,
+        volume_24h: poolData.volume24h,
+        volume_7d: poolData.volume7d,
+        fee_24h: poolData.fee24h,
+        apy: poolData.apy,
+        impermanent_loss: poolData.impermanentLoss,
+        dex: poolData.dex,
+        timestamp: Date.now()
+      }
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      error: 'Failed to fetch pool analytics',
+      message: error.message
+    });
+  }
 }

@@ -3,9 +3,13 @@
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { AIAgentDataService } from '../../../src/data-service.js';
 
 const PAYMENT_ADDRESS = process.env.X402_PAYMENT_ADDRESS_BASE || '0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3';
 const PRICE_USD = 0.005;
+
+// Initialize data service
+const dataService = new AIAgentDataService();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -100,23 +104,44 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const query = new URL(req.url!, `http://${req.headers.host}`).searchParams;
   const tokenAddress = query.get('token_address');
   const chain = query.get('chain') || 'ethereum';
+  const minAmountUsd = parseInt(query.get('min_value_usd') || '100000');
+  const limit = parseInt(query.get('limit') || '10');
 
-  return res.status(200).json({
-    success: true,
-    data: {
-      token_address: tokenAddress,
-      chain: chain,
-      transactions: [
-        {
-          hash: '0xabc123...',
-          from: '0xdef456...',
-          to: '0x789ghi...',
-          value_usd: 1500000,
-          timestamp: Date.now() - 3600000
-        }
-      ],
-      total_count: 1,
-      timestamp: Date.now()
-    }
-  });
+  if (!tokenAddress) {
+    return res.status(400).json({
+      error: 'Missing required parameter: token_address'
+    });
+  }
+
+  try {
+    // Call real data service
+    const whaleData = await dataService.getWhaleTransactions(tokenAddress, chain, minAmountUsd, limit);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        token_address: tokenAddress,
+        chain: chain,
+        min_value_usd: minAmountUsd,
+        transactions: whaleData.map(tx => ({
+          hash: tx.hash,
+          from: tx.from,
+          to: tx.to,
+          token: tx.token,
+          amount: tx.amount,
+          amount_usd: tx.amountUsd,
+          type: tx.type,
+          timestamp: tx.timestamp,
+          dex: tx.dex
+        })),
+        total_count: whaleData.length,
+        timestamp: Date.now()
+      }
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      error: 'Failed to fetch whale transactions',
+      message: error.message
+    });
+  }
 }
