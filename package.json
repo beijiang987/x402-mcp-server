@@ -21,6 +21,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "@vercel/kv": "^2.0.0",
+    "@vercel/postgres": "^0.10.0",
     "@x402/core": "latest",
     "@x402/evm": "latest",
     "@x402/fetch": "latest",
