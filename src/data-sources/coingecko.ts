@@ -34,8 +34,6 @@ interface CoinGeckoPriceResponse {
 export class CoinGeckoDataSource {
   private baseUrl = 'https://api.coingecko.com/api/v3';
   private apiKey?: string;
-  private cache: Map<string, { data: any; timestamp: number }> = new Map();
-  private cacheTTL = 30000; // 30 seconds
 
   constructor(apiKey?: string) {
     this.apiKey = apiKey;
@@ -45,14 +43,6 @@ export class CoinGeckoDataSource {
    * Get token price by contract address
    */
   async getTokenPrice(tokenAddress: string, chain: string): Promise<TokenPrice> {
-    const cacheKey = `price:${chain}:${tokenAddress}`;
-
-    // Check cache
-    const cached = this.getFromCache(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
     // Map chain to CoinGecko platform ID
     const platform = this.mapChainToPlatform(chain);
 
@@ -97,9 +87,6 @@ export class CoinGeckoDataSource {
       market_cap: priceData.usd_market_cap || 0,
       last_updated: priceData.last_updated_at || Date.now()
     };
-
-    // Cache result
-    this.setCache(cacheKey, result);
 
     return result;
   }
@@ -188,36 +175,4 @@ export class CoinGeckoDataSource {
   }
 
 
-  /**
-   * Cache helpers
-   */
-  private getFromCache<T>(key: string): T | null {
-    const cached = this.cache.get(key);
-    if (!cached) return null;
-
-    const age = Date.now() - cached.timestamp;
-    if (age > this.cacheTTL) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    return cached.data as T;
-  }
-
-  private setCache(key: string, data: any): void {
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now()
-    });
-
-    // Cleanup old entries periodically
-    if (this.cache.size > 1000) {
-      const now = Date.now();
-      for (const [k, v] of this.cache.entries()) {
-        if (now - v.timestamp > this.cacheTTL) {
-          this.cache.delete(k);
-        }
-      }
-    }
-  }
 }

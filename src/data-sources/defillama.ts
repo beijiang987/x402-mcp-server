@@ -37,21 +37,11 @@ interface TokenData {
 export class DeFiLlamaDataSource {
   private baseUrl = 'https://yields.llama.fi';
   private coinsUrl = 'https://coins.llama.fi';
-  private cache: Map<string, { data: any; timestamp: number }> = new Map();
-  private cacheTTL = 60000; // 1 minute
 
   /**
    * Get pool analytics by address
    */
   async getPoolAnalytics(poolAddress: string, chain: string): Promise<any> {
-    const cacheKey = `pool:${chain}:${poolAddress}`;
-
-    // Check cache
-    const cached = this.getFromCache<any>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
     try {
       // Fetch all pools for the chain
       const data = await httpClient.get(`${this.baseUrl}/pools`, { timeout: 10000 });
@@ -83,9 +73,6 @@ export class DeFiLlamaDataSource {
         last_updated: Date.now()
       };
 
-      // Cache result
-      this.setCache(cacheKey, result);
-
       return result;
     } catch (error) {
       throw error;
@@ -96,14 +83,6 @@ export class DeFiLlamaDataSource {
    * Get token price from DeFiLlama
    */
   async getTokenPrice(tokenAddress: string, chain: string): Promise<number> {
-    const cacheKey = `price:${chain}:${tokenAddress}`;
-
-    // Check cache
-    const cached = this.getFromCache<number>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
     try {
       // DeFiLlama uses chain:address format
       const chainPrefix = this.mapChainToPrefix(chain);
@@ -118,9 +97,6 @@ export class DeFiLlamaDataSource {
 
       const price = priceData.price || 0;
 
-      // Cache result
-      this.setCache(cacheKey, price);
-
       return price;
     } catch (error) {
       throw error;
@@ -131,20 +107,9 @@ export class DeFiLlamaDataSource {
    * Get current TVL for a protocol
    */
   async getProtocolTVL(protocol: string): Promise<number> {
-    const cacheKey = `tvl:${protocol}`;
-
-    // Check cache
-    const cached = this.getFromCache<number>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
     try {
       const data = await httpClient.get(`https://api.llama.fi/protocol/${protocol}`, { timeout: 8000 });
       const tvl = data.tvl?.[data.tvl.length - 1]?.totalLiquidityUSD || 0;
-
-      // Cache result
-      this.setCache(cacheKey, tvl);
 
       return tvl;
     } catch (error) {
@@ -174,36 +139,4 @@ export class DeFiLlamaDataSource {
     return prefix;
   }
 
-  /**
-   * Cache helpers
-   */
-  private getFromCache<T>(key: string): T | null {
-    const cached = this.cache.get(key);
-    if (!cached) return null;
-
-    const age = Date.now() - cached.timestamp;
-    if (age > this.cacheTTL) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    return cached.data as T;
-  }
-
-  private setCache(key: string, data: any): void {
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now()
-    });
-
-    // Cleanup old entries
-    if (this.cache.size > 500) {
-      const now = Date.now();
-      for (const [k, v] of this.cache.entries()) {
-        if (now - v.timestamp > this.cacheTTL) {
-          this.cache.delete(k);
-        }
-      }
-    }
-  }
 }

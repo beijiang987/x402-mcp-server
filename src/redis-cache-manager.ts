@@ -143,6 +143,7 @@ export class RedisCacheManager<T = any> {
 
   /**
    * Get or set pattern: if cache miss, compute and store
+   * Uses distributed locking to prevent race conditions
    */
   async getOrSet(
     key: string,
@@ -155,15 +156,76 @@ export class RedisCacheManager<T = any> {
       return cached;
     }
 
-    // Cache miss - compute value
+    // Cache miss - try to acquire lock
+    const lockKey = `${this.prefix}:lock:${key}`;
+    const lockValue = `${Date.now()}-${Math.random()}`;
+    const lockTTL = 10; // Lock expires after 10 seconds
+
     try {
-      const computed = await computeFn();
-      await this.set(key, computed, ttlSeconds);
-      return computed;
+      // Try to acquire lock using SET NX (atomic operation)
+      const lockAcquired = await kv.set(lockKey, lockValue, {
+        ex: lockTTL,
+        nx: true, // Only set if key doesn't exist
+      });
+
+      if (!lockAcquired) {
+        // Failed to acquire lock - another request is computing
+        // Wait for the other request to complete
+        logger.debug('Waiting for cache computation', { key });
+        const result = await this.waitForCache(key, 8000); // Wait up to 8 seconds
+        if (result !== null) {
+          return result;
+        }
+        // Timeout or failed - compute anyway as fallback
+        logger.warn('Cache wait timeout, computing anyway', { key });
+      }
+
+      // Lock acquired or timeout - compute value
+      try {
+        const computed = await computeFn();
+        await this.set(key, computed, ttlSeconds);
+        return computed;
+      } finally {
+        // Release lock (only if we still own it)
+        try {
+          const currentLock = await kv.get(lockKey);
+          if (currentLock === lockValue) {
+            await kv.del(lockKey);
+          }
+        } catch (error) {
+          // Ignore lock release errors
+        }
+      }
     } catch (error: any) {
-      logger.error('Redis cache getOrSet compute error', error);
-      throw error;
+      logger.error('Redis cache getOrSet error', error);
+      // On error, try to compute without lock
+      const computed = await computeFn();
+      return computed;
     }
+  }
+
+  /**
+   * Wait for cache value to become available
+   * Polls every 100ms for up to timeoutMs
+   */
+  private async waitForCache(key: string, timeoutMs: number): Promise<T | null> {
+    const startTime = Date.now();
+    const pollInterval = 100; // Check every 100ms
+
+    while (Date.now() - startTime < timeoutMs) {
+      const value = await this.get(key);
+      if (value !== null) {
+        logger.debug('Cache value available after wait', {
+          key,
+          waitTime: Date.now() - startTime,
+        });
+        return value;
+      }
+      // Wait before next poll
+      await new Promise((resolve) => setTimeout(resolve, pollInterval));
+    }
+
+    return null;
   }
 
   /**

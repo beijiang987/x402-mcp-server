@@ -54,21 +54,11 @@ interface DexPair {
  */
 export class DexScreenerDataSource {
   private baseUrl = 'https://api.dexscreener.com/latest';
-  private cache: Map<string, { data: any; timestamp: number }> = new Map();
-  private cacheTTL = 30000; // 30 seconds
 
   /**
    * Get token pairs by address
    */
   async getTokenPairs(tokenAddress: string, chain: string): Promise<DexPair[]> {
-    const cacheKey = `pairs:${chain}:${tokenAddress}`;
-
-    // Check cache
-    const cached = this.getFromCache<DexPair[]>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
     try {
       const chainId = this.mapChainToId(chain);
       const data = await httpClient.get(
@@ -78,9 +68,6 @@ export class DexScreenerDataSource {
 
       // Filter pairs by chain
       const pairs = data.pairs?.filter((p: any) => p.chainId === chainId) || [];
-
-      // Cache result
-      this.setCache(cacheKey, pairs);
 
       return pairs;
     } catch (error) {
@@ -99,14 +86,6 @@ export class DexScreenerDataSource {
     minAmountUsd: number,
     limit: number
   ): Promise<DexTransaction[]> {
-    const cacheKey = `whales:${chain}:${tokenAddress}:${minAmountUsd}`;
-
-    // Check cache
-    const cached = this.getFromCache<DexTransaction[]>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
     try {
       // Get pairs for this token
       const pairs = await this.getTokenPairs(tokenAddress, chain);
@@ -159,9 +138,6 @@ export class DexScreenerDataSource {
       // Sort by amount descending
       transactions.sort((a, b) => b.amount_usd - a.amount_usd);
 
-      // Cache result
-      this.setCache(cacheKey, transactions);
-
       return transactions;
     } catch (error) {
       throw error;
@@ -172,14 +148,6 @@ export class DexScreenerDataSource {
    * Get pair analytics
    */
   async getPairAnalytics(pairAddress: string): Promise<any> {
-    const cacheKey = `pair:${pairAddress}`;
-
-    // Check cache
-    const cached = this.getFromCache<any>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
     try {
       const data = await httpClient.get(
         `${this.baseUrl}/dex/pairs/${pairAddress}`,
@@ -204,9 +172,6 @@ export class DexScreenerDataSource {
         txns_24h: (pair.txns?.h24?.buys || 0) + (pair.txns?.h24?.sells || 0),
         last_updated: Date.now()
       };
-
-      // Cache result
-      this.setCache(cacheKey, result);
 
       return result;
     } catch (error) {
@@ -236,36 +201,4 @@ export class DexScreenerDataSource {
     return chainId;
   }
 
-  /**
-   * Cache helpers
-   */
-  private getFromCache<T>(key: string): T | null {
-    const cached = this.cache.get(key);
-    if (!cached) return null;
-
-    const age = Date.now() - cached.timestamp;
-    if (age > this.cacheTTL) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    return cached.data as T;
-  }
-
-  private setCache(key: string, data: any): void {
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now()
-    });
-
-    // Cleanup old entries
-    if (this.cache.size > 500) {
-      const now = Date.now();
-      for (const [k, v] of this.cache.entries()) {
-        if (now - v.timestamp > this.cacheTTL) {
-          this.cache.delete(k);
-        }
-      }
-    }
-  }
 }

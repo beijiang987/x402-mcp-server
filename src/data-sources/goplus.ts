@@ -57,20 +57,11 @@ interface GoPlusResponse {
  */
 export class GoPlusDataSource {
   private baseUrl = 'https://api.gopluslabs.io/api/v1';
-  private cache: Map<string, { data: any; timestamp: number }> = new Map();
-  private cacheTTL = 300000; // 5 minutes (security data doesn't change often)
 
   /**
    * Scan contract for security issues
    */
   async scanContract(contractAddress: string, chain: string): Promise<ContractSafety> {
-    const cacheKey = `safety:${chain}:${contractAddress}`;
-
-    // Check cache
-    const cached = this.getFromCache<ContractSafety>(cacheKey);
-    if (cached) {
-      return cached;
-    }
 
     // Map chain to GoPlus chain ID
     const chainId = this.mapChainToId(chain);
@@ -103,9 +94,6 @@ export class GoPlusDataSource {
 
     // Parse security data
     const result = this.parseSecurityData(contractAddress, chain, securityData);
-
-    // Cache result
-    this.setCache(cacheKey, result);
 
     return result;
   }
@@ -224,36 +212,4 @@ export class GoPlusDataSource {
     return chainId;
   }
 
-  /**
-   * Cache helpers
-   */
-  private getFromCache<T>(key: string): T | null {
-    const cached = this.cache.get(key);
-    if (!cached) return null;
-
-    const age = Date.now() - cached.timestamp;
-    if (age > this.cacheTTL) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    return cached.data as T;
-  }
-
-  private setCache(key: string, data: any): void {
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now()
-    });
-
-    // Cleanup old entries
-    if (this.cache.size > 500) {
-      const now = Date.now();
-      for (const [k, v] of this.cache.entries()) {
-        if (now - v.timestamp > this.cacheTTL) {
-          this.cache.delete(k);
-        }
-      }
-    }
-  }
 }

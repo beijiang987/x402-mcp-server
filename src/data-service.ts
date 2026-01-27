@@ -199,83 +199,110 @@ export class AIAgentDataService {
     const cached = await poolAnalyticsCache.get(cacheKey);
     if (cached) return cached;
 
-    let result: PoolAnalytics;
+    // Parallel race strategy: query all sources with timeout, use fastest response
+    const timeout = 5000; // 5 seconds timeout per source
 
-    // Try Uniswap Subgraph first
-    try {
-      const poolData = await this.uniswap.getPoolAnalytics(poolAddress, chain);
+    const sources = [
+      {
+        name: 'Uniswap',
+        fetch: async () => {
+          const poolData = await this.withTimeout(
+            this.uniswap.getPoolAnalytics(poolAddress, chain),
+            timeout
+          );
+          return {
+            poolAddress: poolData.pool_address,
+            token0: `${poolData.token0.symbol} (${poolData.token0.address})`,
+            token1: `${poolData.token1.symbol} (${poolData.token1.address})`,
+            tvl: poolData.tvl_usd,
+            volume24h: poolData.volume_24h_usd,
+            volume7d: poolData.volume_7d_usd,
+            fee24h: (poolData.volume_24h_usd * poolData.fee_tier) / 1000000,
+            apy: poolData.apy,
+            impermanentLoss: 0,
+            chain: poolData.chain,
+            dex: 'Uniswap V3',
+          };
+        },
+      },
+      {
+        name: 'DeFiLlama',
+        fetch: async () => {
+          const poolData = await this.withTimeout(
+            this.defillama.getPoolAnalytics(poolAddress, chain),
+            timeout
+          );
+          return {
+            poolAddress: poolData.pool_address,
+            token0: poolData.underlying_tokens[0] || 'Token0',
+            token1: poolData.underlying_tokens[1] || 'Token1',
+            tvl: poolData.tvl_usd,
+            volume24h: poolData.volume_usd_1d,
+            volume7d: poolData.volume_usd_7d,
+            fee24h: poolData.volume_usd_1d * 0.003,
+            apy: poolData.apy,
+            impermanentLoss: 0,
+            chain: poolData.chain,
+            dex: poolData.project,
+          };
+        },
+      },
+      {
+        name: 'DEX Screener',
+        fetch: async () => {
+          const pairData = await this.withTimeout(
+            this.dexscreener.getPairAnalytics(poolAddress),
+            timeout
+          );
+          return {
+            poolAddress: pairData.pair_address,
+            token0: `${pairData.base_token.symbol} (${pairData.base_token.address})`,
+            token1: `${pairData.quote_token.symbol} (${pairData.quote_token.address})`,
+            tvl: pairData.liquidity_usd,
+            volume24h: pairData.volume_24h,
+            volume7d: pairData.volume_24h * 7,
+            fee24h: pairData.volume_24h * 0.003,
+            apy: 0,
+            impermanentLoss: 0,
+            chain: pairData.chain,
+            dex: pairData.dex,
+          };
+        },
+      },
+    ];
 
-      result = {
-        poolAddress: poolData.pool_address,
-        token0: `${poolData.token0.symbol} (${poolData.token0.address})`,
-        token1: `${poolData.token1.symbol} (${poolData.token1.address})`,
-        tvl: poolData.tvl_usd,
-        volume24h: poolData.volume_24h_usd,
-        volume7d: poolData.volume_7d_usd,
-        fee24h: (poolData.volume_24h_usd * poolData.fee_tier) / 1000000,
-        apy: poolData.apy,
-        impermanentLoss: 0,
-        chain: poolData.chain,
-        dex: 'Uniswap V3',
-      };
+    // Race all sources - use the first successful response
+    const results = await Promise.allSettled(sources.map((s) => s.fetch()));
 
-      // Store in Redis cache (60 seconds TTL)
-      await poolAnalyticsCache.set(cacheKey, result);
-      return result;
-    } catch (uniswapError) {
-      console.warn('Uniswap Subgraph failed, trying fallback sources:', uniswapError);
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
+      if (result.status === 'fulfilled') {
+        logger.info(`Pool analytics from ${sources[i].name}`, {
+          poolAddress,
+          chain,
+        });
+        // Store in Redis cache (60 seconds TTL)
+        await poolAnalyticsCache.set(cacheKey, result.value);
+        return result.value;
+      } else {
+        logger.warn(`${sources[i].name} failed:`, result.reason?.message);
+      }
     }
 
-    // Fallback 1: Try DeFiLlama
-    try {
-      const poolData = await this.defillama.getPoolAnalytics(poolAddress, chain);
+    // All sources failed
+    throw new Error('All pool analytics sources failed or timed out');
+  }
 
-      result = {
-        poolAddress: poolData.pool_address,
-        token0: poolData.underlying_tokens[0] || 'Token0',
-        token1: poolData.underlying_tokens[1] || 'Token1',
-        tvl: poolData.tvl_usd,
-        volume24h: poolData.volume_usd_1d,
-        volume7d: poolData.volume_usd_7d,
-        fee24h: poolData.volume_usd_1d * 0.003, // Estimate 0.3% fee
-        apy: poolData.apy,
-        impermanentLoss: 0,
-        chain: poolData.chain,
-        dex: poolData.project,
-      };
-
-      // Store in Redis cache (60 seconds TTL)
-      await poolAnalyticsCache.set(cacheKey, result);
-      return result;
-    } catch (defillamaError) {
-      console.warn('DeFiLlama failed, trying DEX Screener:', defillamaError);
-    }
-
-    // Fallback 2: Try DEX Screener
-    try {
-      const pairData = await this.dexscreener.getPairAnalytics(poolAddress);
-
-      result = {
-        poolAddress: pairData.pair_address,
-        token0: `${pairData.base_token.symbol} (${pairData.base_token.address})`,
-        token1: `${pairData.quote_token.symbol} (${pairData.quote_token.address})`,
-        tvl: pairData.liquidity_usd,
-        volume24h: pairData.volume_24h,
-        volume7d: pairData.volume_24h * 7, // Estimate 7d volume
-        fee24h: pairData.volume_24h * 0.003, // Estimate 0.3% fee
-        apy: 0, // DEX Screener doesn't provide APY
-        impermanentLoss: 0,
-        chain: pairData.chain,
-        dex: pairData.dex,
-      };
-
-      // Store in Redis cache (60 seconds TTL)
-      await poolAnalyticsCache.set(cacheKey, result);
-      return result;
-    } catch (dexscreenerError) {
-      console.error('All pool analytics sources failed');
-      throw new Error(`Failed to fetch pool analytics: ${dexscreenerError}`);
-    }
+  /**
+   * Helper: Add timeout to promise
+   */
+  private withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+    return Promise.race([
+      promise,
+      new Promise<T>((_, reject) =>
+        setTimeout(() => reject(new Error('Request timeout')), timeoutMs)
+      ),
+    ]);
   }
 
   /**

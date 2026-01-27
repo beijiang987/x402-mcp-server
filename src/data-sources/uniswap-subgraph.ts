@@ -47,21 +47,11 @@ interface WhaleTransaction {
  * Uniswap Subgraph Data Source
  */
 export class UniswapSubgraphDataSource {
-  private cache: Map<string, { data: any; timestamp: number }> = new Map();
-  private cacheTTL = 60000; // 1 minute
 
   /**
    * Get pool analytics
    */
   async getPoolAnalytics(poolAddress: string, chain: string): Promise<PoolAnalytics> {
-    const cacheKey = `pool:${chain}:${poolAddress}`;
-
-    // Check cache
-    const cached = this.getFromCache<PoolAnalytics>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
     // Get subgraph URL for chain
     const subgraphUrl = this.getSubgraphUrl(chain);
 
@@ -137,9 +127,6 @@ export class UniswapSubgraphDataSource {
       last_updated: Date.now()
     };
 
-    // Cache result
-    this.setCache(cacheKey, result);
-
     return result;
   }
 
@@ -152,14 +139,6 @@ export class UniswapSubgraphDataSource {
     minAmountUSD: number = 100000,
     limit: number = 10
   ): Promise<WhaleTransaction[]> {
-    const cacheKey = `whales:${chain}:${tokenAddress}:${minAmountUSD}`;
-
-    // Check cache
-    const cached = this.getFromCache<WhaleTransaction[]>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
     // Get subgraph URL
     const subgraphUrl = this.getSubgraphUrl(chain);
 
@@ -210,29 +189,41 @@ export class UniswapSubgraphDataSource {
 
     const swaps = response.data?.swaps || [];
 
-    // Parse swaps into whale transactions
-    const result: WhaleTransaction[] = swaps.map((swap: any) => {
-      const isToken0 = swap.token0.id.toLowerCase() === tokenAddress.toLowerCase();
-      const token = isToken0 ? swap.token0 : swap.token1;
-      const amount = parseFloat(isToken0 ? swap.amount0 : swap.amount1);
-      const amountUSD = parseFloat(swap.amountUSD);
+    // Parse swaps into whale transactions with null safety
+    const result: WhaleTransaction[] = swaps
+      .filter((swap: any) => {
+        // Filter out invalid swaps
+        return swap && swap.token0 && swap.token1 && swap.pool && swap.id;
+      })
+      .map((swap: any) => {
+        // Safe token access with defaults
+        const token0 = swap.token0 || { id: '', symbol: 'UNKNOWN', decimals: 18 };
+        const token1 = swap.token1 || { id: '', symbol: 'UNKNOWN', decimals: 18 };
 
-      return {
-        hash: swap.id.split('#')[0], // Extract tx hash from swap ID
-        timestamp: parseInt(swap.timestamp) * 1000, // Convert to ms
-        from: swap.sender,
-        type: amount > 0 ? 'buy' : 'sell',
-        token_address: token.id,
-        token_symbol: token.symbol,
-        amount_usd: amountUSD,
-        amount_tokens: Math.abs(amount),
-        price_usd: amountUSD / Math.abs(amount),
-        pool_address: swap.pool.id
-      };
-    });
+        const isToken0 = token0.id.toLowerCase() === tokenAddress.toLowerCase();
+        const token = isToken0 ? token0 : token1;
 
-    // Cache result
-    this.setCache(cacheKey, result);
+        // Parse amounts safely
+        const amount = parseFloat(isToken0 ? swap.amount0 : swap.amount1) || 0;
+        const amountUSD = parseFloat(swap.amountUSD) || 0;
+        const absAmount = Math.abs(amount);
+
+        // Safe price calculation (avoid division by zero)
+        const priceUsd = absAmount > 0 ? amountUSD / absAmount : 0;
+
+        return {
+          hash: swap.id.split('#')[0], // Extract tx hash from swap ID
+          timestamp: parseInt(swap.timestamp) * 1000, // Convert to ms
+          from: swap.sender || 'unknown',
+          type: amount > 0 ? 'buy' : 'sell',
+          token_address: token.id,
+          token_symbol: token.symbol,
+          amount_usd: amountUSD,
+          amount_tokens: absAmount,
+          price_usd: priceUsd,
+          pool_address: swap.pool?.id || 'unknown'
+        };
+      });
 
     return result;
   }
@@ -283,36 +274,4 @@ export class UniswapSubgraphDataSource {
     return data;
   }
 
-  /**
-   * Cache helpers
-   */
-  private getFromCache<T>(key: string): T | null {
-    const cached = this.cache.get(key);
-    if (!cached) return null;
-
-    const age = Date.now() - cached.timestamp;
-    if (age > this.cacheTTL) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    return cached.data as T;
-  }
-
-  private setCache(key: string, data: any): void {
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now()
-    });
-
-    // Cleanup old entries
-    if (this.cache.size > 500) {
-      const now = Date.now();
-      for (const [k, v] of this.cache.entries()) {
-        if (now - v.timestamp > this.cacheTTL) {
-          this.cache.delete(k);
-        }
-      }
-    }
-  }
 }

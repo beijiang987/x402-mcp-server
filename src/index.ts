@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+
+// Validate environment variables first (will exit if invalid)
+import './config/env-validator.js';
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
