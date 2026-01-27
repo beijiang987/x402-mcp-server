@@ -423,32 +423,32 @@ export class AIAgentDataService {
 
   // ========== 辅助方法 ==========
 
+  /**
+   * Calculate arbitrage opportunity using optimized O(n log n) approach
+   * Previous: O(n²) nested loop
+   * Current: O(n log n) sorting approach
+   */
   private calculateArbitrage(prices: any): any {
-    const chains = Object.keys(prices);
-    if (chains.length < 2) return undefined;
+    // Convert to array and filter out invalid prices
+    const priceArray = Object.entries(prices)
+      .map(([chain, data]: [string, any]) => ({
+        chain,
+        price: data?.price,
+      }))
+      .filter((item) => item.price && item.price > 0);
 
-    let maxProfit = 0;
-    let bestBuyChain = '';
-    let bestSellChain = '';
+    if (priceArray.length < 2) return undefined;
 
-    for (const buyChain of chains) {
-      for (const sellChain of chains) {
-        if (buyChain === sellChain) continue;
+    // Sort by price (ascending) - O(n log n)
+    priceArray.sort((a, b) => a.price - b.price);
 
-        const buyPrice = prices[buyChain]?.price;
-        const sellPrice = prices[sellChain]?.price;
+    // Maximum arbitrage is always between lowest and highest price
+    const bestBuyChain = priceArray[0].chain;
+    const bestSellChain = priceArray[priceArray.length - 1].chain;
+    const buyPrice = priceArray[0].price;
+    const sellPrice = priceArray[priceArray.length - 1].price;
 
-        if (!buyPrice || !sellPrice) continue;
-
-        const profit = ((sellPrice - buyPrice) / buyPrice) * 100;
-
-        if (profit > maxProfit) {
-          maxProfit = profit;
-          bestBuyChain = buyChain;
-          bestSellChain = sellChain;
-        }
-      }
-    }
+    const maxProfit = ((sellPrice - buyPrice) / buyPrice) * 100;
 
     if (maxProfit > 0.5) {
       // At least 0.5% arbitrage opportunity
