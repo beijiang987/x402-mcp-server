@@ -83,10 +83,9 @@ export class RedisRateLimiterService {
         count: recordData.count + 1,
       };
 
-      // Calculate TTL (time until window expires + 1 hour buffer)
-      const ttlSeconds = Math.ceil(
-        (recordData.resetTime - now + 3600000) / 1000
-      );
+      // Calculate TTL with millisecond precision (time until window expires)
+      const ttlMs = Math.max(1000, recordData.resetTime - now);
+      const ttlSeconds = Math.ceil(ttlMs / 1000);
 
       await kv.set(key, updatedRecord, { ex: ttlSeconds });
 
@@ -124,8 +123,8 @@ export class RedisRateLimiterService {
       tier,
     };
 
-    // Calculate TTL (window duration + 1 hour buffer)
-    const ttlSeconds = Math.ceil((limit.windowMs + 3600000) / 1000);
+    // Calculate TTL (exact window duration, no buffer needed)
+    const ttlSeconds = Math.ceil(limit.windowMs / 1000);
 
     await kv.set(key, record, { ex: ttlSeconds });
 

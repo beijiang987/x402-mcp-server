@@ -140,11 +140,24 @@ class Logger {
   }
 
   payment(action: string, txHash?: string, amount?: string, success: boolean = true): void {
+    // Mask sensitive data for privacy
+    const maskedHash = txHash ? `${txHash.slice(0, 6)}...${txHash.slice(-4)}` : 'N/A';
+    const maskedAmount = amount ? `$${parseFloat(amount).toFixed(4)}` : 'N/A';
+
     if (success) {
-      this.info(`Payment ${action}`, { txHash, amount });
+      this.info(`Payment ${action}`, { txHash: maskedHash, amount: maskedAmount });
     } else {
-      this.error(`Payment ${action} failed`, undefined, { txHash, amount });
+      this.error(`Payment ${action} failed`, undefined, { txHash: maskedHash, amount: maskedAmount });
     }
+  }
+
+  /**
+   * Mask sensitive string (show first N and last M characters)
+   */
+  private maskString(str: string | undefined, showFirst: number = 6, showLast: number = 4): string {
+    if (!str) return 'N/A';
+    if (str.length <= showFirst + showLast) return str;
+    return `${str.slice(0, showFirst)}...${str.slice(-showLast)}`;
   }
 
   rateLimit(identifier: string, allowed: boolean, tier: string): void {
