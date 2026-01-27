@@ -6,6 +6,8 @@
  * Documentation: https://docs.gopluslabs.io/
  */
 
+import { httpClient } from '../utils/http-client.js';
+
 interface ContractSafety {
   contract_address: string;
   chain: string;
@@ -79,17 +81,13 @@ export class GoPlusDataSource {
       contract_addresses: contractAddress.toLowerCase()
     });
 
-    const response = await fetch(`${url}?${params}`, {
-      headers: {
-        'Accept': 'application/json'
+    const data: GoPlusResponse = await httpClient.get(
+      `${url}?${params}`,
+      {
+        headers: { 'Accept': 'application/json' },
+        timeout: 8000
       }
-    });
-
-    if (!response.ok) {
-      throw new Error(`GoPlus API error: ${response.status} ${response.statusText}`);
-    }
-
-    const data: GoPlusResponse = await response.json();
+    );
 
     if (data.code !== 1) {
       throw new Error(`GoPlus API error: ${data.message}`);

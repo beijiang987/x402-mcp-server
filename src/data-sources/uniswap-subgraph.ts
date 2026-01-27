@@ -6,6 +6,8 @@
  * Documentation: https://docs.uniswap.org/api/subgraph/overview
  */
 
+import { httpClient } from '../utils/http-client.js';
+
 interface PoolAnalytics {
   pool_address: string;
   chain: string;
@@ -262,20 +264,17 @@ export class UniswapSubgraphDataSource {
    * Query subgraph with GraphQL
    */
   private async querySubgraph(url: string, query: string, variables: any): Promise<any> {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({ query, variables })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Subgraph query failed: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
+    const data = await httpClient.post(
+      url,
+      { query, variables },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        timeout: 10000
+      }
+    );
 
     if (data.errors) {
       throw new Error(`GraphQL errors: ${JSON.stringify(data.errors)}`);

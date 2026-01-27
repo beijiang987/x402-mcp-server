@@ -6,6 +6,8 @@
  * Documentation: https://docs.coingecko.com/reference/introduction
  */
 
+import { httpClient } from '../utils/http-client.js';
+
 interface TokenPrice {
   token_address: string;
   chain: string;
@@ -65,8 +67,18 @@ export class CoinGeckoDataSource {
       include_last_updated_at: 'true'
     });
 
-    const response = await this.fetch(`${url}?${params}`);
-    const data: CoinGeckoPriceResponse = await response.json();
+    const headers: Record<string, string> = {
+      'Accept': 'application/json'
+    };
+
+    if (this.apiKey) {
+      headers['x-cg-pro-api-key'] = this.apiKey;
+    }
+
+    const data: CoinGeckoPriceResponse = await httpClient.get(
+      `${url}?${params}`,
+      { headers, timeout: 8000 }
+    );
 
     // Parse response
     const addressKey = tokenAddress.toLowerCase();
@@ -175,26 +187,6 @@ export class CoinGeckoDataSource {
     return registry[symbol.toUpperCase()] || {};
   }
 
-  /**
-   * Fetch with API key support
-   */
-  private async fetch(url: string): Promise<Response> {
-    const headers: Record<string, string> = {
-      'Accept': 'application/json'
-    };
-
-    if (this.apiKey) {
-      headers['x-cg-pro-api-key'] = this.apiKey;
-    }
-
-    const response = await fetch(url, { headers });
-
-    if (!response.ok) {
-      throw new Error(`CoinGecko API error: ${response.status} ${response.statusText}`);
-    }
-
-    return response;
-  }
 
   /**
    * Cache helpers

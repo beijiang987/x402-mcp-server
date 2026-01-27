@@ -35,12 +35,24 @@ export interface PaymentConfig {
 }
 
 export class X402PaymentService {
+  private static instance: X402PaymentService | null = null;
   private configs: Map<string, PaymentConfig> = new Map();
   private x402Fetch: any;
 
-  constructor() {
+  // Private constructor to prevent direct instantiation
+  private constructor() {
     // Initialize x402 fetch wrapper
     this.initializeX402Fetch();
+  }
+
+  /**
+   * Get singleton instance
+   */
+  static getInstance(): X402PaymentService {
+    if (!X402PaymentService.instance) {
+      X402PaymentService.instance = new X402PaymentService();
+    }
+    return X402PaymentService.instance;
   }
 
   private initializeX402Fetch() {

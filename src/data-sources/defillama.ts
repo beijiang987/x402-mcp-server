@@ -6,6 +6,8 @@
  * Documentation: https://defillama.com/docs/api
  */
 
+import { httpClient } from '../utils/http-client.js';
+
 interface PoolData {
   pool_address: string;
   chain: string;
@@ -52,13 +54,7 @@ export class DeFiLlamaDataSource {
 
     try {
       // Fetch all pools for the chain
-      const response = await fetch(`${this.baseUrl}/pools`);
-
-      if (!response.ok) {
-        throw new Error(`DeFiLlama API error: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await httpClient.get(`${this.baseUrl}/pools`, { timeout: 10000 });
 
       // Find the specific pool
       const normalizedAddress = poolAddress.toLowerCase();
@@ -113,13 +109,7 @@ export class DeFiLlamaDataSource {
       const chainPrefix = this.mapChainToPrefix(chain);
       const tokenId = `${chainPrefix}:${tokenAddress}`;
 
-      const response = await fetch(`${this.coinsUrl}/prices/current/${tokenId}`);
-
-      if (!response.ok) {
-        throw new Error(`DeFiLlama price API error: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await httpClient.get(`${this.coinsUrl}/prices/current/${tokenId}`, { timeout: 8000 });
       const priceData = data.coins?.[tokenId];
 
       if (!priceData) {
@@ -150,13 +140,7 @@ export class DeFiLlamaDataSource {
     }
 
     try {
-      const response = await fetch(`https://api.llama.fi/protocol/${protocol}`);
-
-      if (!response.ok) {
-        throw new Error(`DeFiLlama protocol API error: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await httpClient.get(`https://api.llama.fi/protocol/${protocol}`, { timeout: 8000 });
       const tvl = data.tvl?.[data.tvl.length - 1]?.totalLiquidityUSD || 0;
 
       // Cache result

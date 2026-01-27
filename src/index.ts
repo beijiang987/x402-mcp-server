@@ -8,6 +8,34 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { X402PaymentService } from './payment-service.js';
 import { DataService } from './data-service.js';
+import { logger } from './utils/logger.js';
+
+// ============================================
+// Global Error Handlers
+// ============================================
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+  console.error('❌ Unhandled Rejection at:', promise);
+  console.error('Reason:', reason);
+  logger.error('Unhandled promise rejection', {
+    reason: reason?.message || String(reason),
+    stack: reason?.stack,
+  });
+  // Don't exit the process - log and continue
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error: Error) => {
+  console.error('❌ Uncaught Exception:', error);
+  logger.error('Uncaught exception', {
+    message: error.message,
+    stack: error.stack,
+  });
+  // For uncaught exceptions, we should exit gracefully
+  console.error('Process will exit due to uncaught exception');
+  process.exit(1);
+});
 
 const TOOLS: Tool[] = [
   {
@@ -219,7 +247,8 @@ class X402MCPServer {
       }
     );
 
-    this.paymentService = new X402PaymentService();
+    // Use singleton instances
+    this.paymentService = X402PaymentService.getInstance();
     this.dataService = new DataService();
     this.setupToolHandlers();
 

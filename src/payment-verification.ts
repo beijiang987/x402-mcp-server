@@ -4,8 +4,9 @@
  * Verifies on-chain transactions for payment proof
  */
 
-import { createPublicClient, http, parseUnits, type Address } from 'viem';
+import { createPublicClient, http, parseUnits, formatUnits, type Address } from 'viem';
 import { mainnet, base } from 'viem/chains';
+import { logger } from './utils/logger.js';
 
 interface PaymentProof {
   txHash: string;
@@ -199,15 +200,44 @@ export class PaymentVerificationService {
 
       // Parse transfer amount (USDC has 6 decimals)
       const amountTransferred = BigInt(transferEvent.data);
-      const expectedAmountBigInt = parseUnits(expectedAmount.toString(), 6);
 
-      // Check if amount is sufficient (allow small rounding differences)
-      const minAcceptable = (expectedAmountBigInt * BigInt(95)) / BigInt(100); // 95% of expected
-
-      if (amountTransferred < minAcceptable) {
+      // Validate expected amount range (prevent extreme values)
+      if (expectedAmount <= 0 || expectedAmount > 1000000) {
+        logger.warn('Invalid expected amount', { expectedAmount });
         return {
           valid: false,
-          error: `Insufficient payment: sent ${amountTransferred}, expected ${expectedAmountBigInt}`,
+          error: `Invalid expected amount: ${expectedAmount} (must be between 0 and 1,000,000 USD)`,
+        };
+      }
+
+      // Convert expected amount to BigInt safely
+      // Use toFixed to prevent scientific notation (e.g., 1e-9)
+      const expectedAmountFixed = Number(expectedAmount).toFixed(6);
+      const expectedAmountBigInt = parseUnits(expectedAmountFixed, 6);
+
+      // Check if amount is sufficient (allow 5% tolerance)
+      // Use subtraction instead of multiplication to avoid overflow
+      const minAcceptable = expectedAmountBigInt - (expectedAmountBigInt / BigInt(20)); // 95% = 100% - 5%
+
+      // Log verification details
+      logger.debug('Payment amount verification', {
+        expectedAmount: expectedAmountFixed,
+        expectedAmountBigInt: expectedAmountBigInt.toString(),
+        minAcceptable: minAcceptable.toString(),
+        amountTransferred: amountTransferred.toString(),
+        txHash: proof.txHash,
+      });
+
+      if (amountTransferred < minAcceptable) {
+        logger.warn('Insufficient payment amount', {
+          sent: amountTransferred.toString(),
+          expected: expectedAmountBigInt.toString(),
+          minAcceptable: minAcceptable.toString(),
+          txHash: proof.txHash,
+        });
+        return {
+          valid: false,
+          error: `Insufficient payment: sent ${formatUnits(amountTransferred, 6)} USDC, expected at least ${formatUnits(minAcceptable, 6)} USDC`,
         };
       }
 

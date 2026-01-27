@@ -6,6 +6,8 @@
  * Documentation: https://docs.dexscreener.com/api/reference
  */
 
+import { httpClient } from '../utils/http-client.js';
+
 interface DexTransaction {
   hash: string;
   timestamp: number;
@@ -69,15 +71,10 @@ export class DexScreenerDataSource {
 
     try {
       const chainId = this.mapChainToId(chain);
-      const response = await fetch(
-        `${this.baseUrl}/dex/tokens/${tokenAddress}`
+      const data = await httpClient.get(
+        `${this.baseUrl}/dex/tokens/${tokenAddress}`,
+        { timeout: 8000 }
       );
-
-      if (!response.ok) {
-        throw new Error(`DEX Screener API error: ${response.status}`);
-      }
-
-      const data = await response.json();
 
       // Filter pairs by chain
       const pairs = data.pairs?.filter((p: any) => p.chainId === chainId) || [];
@@ -184,15 +181,10 @@ export class DexScreenerDataSource {
     }
 
     try {
-      const response = await fetch(
-        `${this.baseUrl}/dex/pairs/${pairAddress}`
+      const data = await httpClient.get(
+        `${this.baseUrl}/dex/pairs/${pairAddress}`,
+        { timeout: 8000 }
       );
-
-      if (!response.ok) {
-        throw new Error(`DEX Screener API error: ${response.status}`);
-      }
-
-      const data = await response.json();
       const pair = data.pair;
 
       if (!pair) {
