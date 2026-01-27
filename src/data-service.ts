@@ -13,6 +13,13 @@ import { GoPlusDataSource } from './data-sources/goplus.js';
 import { UniswapSubgraphDataSource } from './data-sources/uniswap-subgraph.js';
 import { DeFiLlamaDataSource } from './data-sources/defillama.js';
 import { DexScreenerDataSource } from './data-sources/dexscreener.js';
+import {
+  tokenPriceCache,
+  poolAnalyticsCache,
+  contractSafetyCache,
+  multichainPriceCache,
+  whaleTransactionCache,
+} from './redis-cache-manager.js';
 
 export interface TokenPrice {
   address: string;
@@ -88,9 +95,6 @@ export class AIAgentDataService {
   private defillama: DeFiLlamaDataSource;
   private dexscreener: DexScreenerDataSource;
 
-  private cache: Map<string, { data: any; timestamp: number }> = new Map();
-  private CACHE_TTL = 10000; // 10 seconds
-
   constructor() {
     // Initialize data sources
     this.coingecko = new CoinGeckoDataSource(process.env.COINGECKO_API_KEY);
@@ -104,8 +108,10 @@ export class AIAgentDataService {
    * 获取代币价格（单链）
    */
   async getTokenPrice(tokenAddress: string, chain: string = 'ethereum'): Promise<TokenPrice> {
-    const cacheKey = `price_${chain}_${tokenAddress}`;
-    const cached = this.getCache(cacheKey);
+    const cacheKey = `${chain}_${tokenAddress}`;
+
+    // Try Redis cache first
+    const cached = await tokenPriceCache.get(cacheKey);
     if (cached) return cached;
 
     try {
@@ -125,7 +131,8 @@ export class AIAgentDataService {
         timestamp: priceData.last_updated,
       };
 
-      this.setCache(cacheKey, result);
+      // Store in Redis cache (30 seconds TTL)
+      await tokenPriceCache.set(cacheKey, result);
       return result;
     } catch (error) {
       console.error('Failed to fetch token price:', error);
@@ -140,8 +147,10 @@ export class AIAgentDataService {
     tokenSymbol: string,
     chains: string[] = ['ethereum', 'base', 'polygon']
   ): Promise<MultiChainPrice> {
-    const cacheKey = `multichain_${tokenSymbol}_${chains.join(',')}`;
-    const cached = this.getCache(cacheKey);
+    const cacheKey = `${tokenSymbol}_${chains.join(',')}`;
+
+    // Try Redis cache first
+    const cached = await multichainPriceCache.get(cacheKey);
     if (cached) return cached;
 
     try {
@@ -170,7 +179,8 @@ export class AIAgentDataService {
         arbitrageOpportunity,
       };
 
-      this.setCache(cacheKey, result);
+      // Store in Redis cache (30 seconds TTL)
+      await multichainPriceCache.set(cacheKey, result);
       return result;
     } catch (error) {
       console.error('Failed to fetch multi-chain price:', error);
@@ -183,8 +193,10 @@ export class AIAgentDataService {
    * Uses multiple data sources with fallback
    */
   async getPoolAnalytics(poolAddress: string, chain: string = 'ethereum'): Promise<PoolAnalytics> {
-    const cacheKey = `pool_${chain}_${poolAddress}`;
-    const cached = this.getCache(cacheKey);
+    const cacheKey = `${chain}_${poolAddress}`;
+
+    // Try Redis cache first
+    const cached = await poolAnalyticsCache.get(cacheKey);
     if (cached) return cached;
 
     let result: PoolAnalytics;
@@ -207,7 +219,8 @@ export class AIAgentDataService {
         dex: 'Uniswap V3',
       };
 
-      this.setCache(cacheKey, result);
+      // Store in Redis cache (60 seconds TTL)
+      await poolAnalyticsCache.set(cacheKey, result);
       return result;
     } catch (uniswapError) {
       console.warn('Uniswap Subgraph failed, trying fallback sources:', uniswapError);
@@ -231,7 +244,8 @@ export class AIAgentDataService {
         dex: poolData.project,
       };
 
-      this.setCache(cacheKey, result);
+      // Store in Redis cache (60 seconds TTL)
+      await poolAnalyticsCache.set(cacheKey, result);
       return result;
     } catch (defillamaError) {
       console.warn('DeFiLlama failed, trying DEX Screener:', defillamaError);
@@ -255,7 +269,8 @@ export class AIAgentDataService {
         dex: pairData.dex,
       };
 
-      this.setCache(cacheKey, result);
+      // Store in Redis cache (60 seconds TTL)
+      await poolAnalyticsCache.set(cacheKey, result);
       return result;
     } catch (dexscreenerError) {
       console.error('All pool analytics sources failed');
@@ -273,8 +288,10 @@ export class AIAgentDataService {
     minAmountUsd: number = 100000,
     limit: number = 10
   ): Promise<WhaleTransaction[]> {
-    const cacheKey = `whale_${chain}_${tokenAddress}_${minAmountUsd}`;
-    const cached = this.getCache(cacheKey);
+    const cacheKey = `${chain}_${tokenAddress}_${minAmountUsd}`;
+
+    // Try Redis cache first
+    const cached = await whaleTransactionCache.get(cacheKey);
     if (cached) return cached;
 
     let result: WhaleTransaction[];
@@ -301,7 +318,8 @@ export class AIAgentDataService {
         dex: 'Uniswap V3',
       }));
 
-      this.setCache(cacheKey, result, 5000);
+      // Store in Redis cache (120 seconds TTL)
+      await whaleTransactionCache.set(cacheKey, result);
       return result;
     } catch (uniswapError) {
       console.warn('Uniswap Subgraph failed, trying DEX Screener:', uniswapError);
@@ -329,7 +347,8 @@ export class AIAgentDataService {
         dex: 'DEX Aggregated',
       }));
 
-      this.setCache(cacheKey, result, 5000);
+      // Store in Redis cache (120 seconds TTL)
+      await whaleTransactionCache.set(cacheKey, result);
       return result;
     } catch (dexscreenerError) {
       console.error('All whale transaction sources failed');
@@ -341,8 +360,10 @@ export class AIAgentDataService {
    * 合约安全扫描
    */
   async scanContractSafety(contractAddress: string, chain: string = 'ethereum'): Promise<ContractSafety> {
-    const cacheKey = `safety_${chain}_${contractAddress}`;
-    const cached = this.getCache(cacheKey);
+    const cacheKey = `${chain}_${contractAddress}`;
+
+    // Try Redis cache first
+    const cached = await contractSafetyCache.get(cacheKey);
     if (cached) return cached;
 
     try {
@@ -364,7 +385,8 @@ export class AIAgentDataService {
         chain: safetyData.chain,
       };
 
-      this.setCache(cacheKey, result, 300000); // 5 minute cache for safety scans
+      // Store in Redis cache (300 seconds = 5 minutes TTL)
+      await contractSafetyCache.set(cacheKey, result, 300);
       return result;
     } catch (error) {
       console.error('Failed to scan contract safety:', error);
@@ -413,38 +435,8 @@ export class AIAgentDataService {
     return undefined;
   }
 
-  // ========== 缓存管理 ==========
-
-  private getCache(key: string): any {
-    const cached = this.cache.get(key);
-    if (!cached) return null;
-
-    if (Date.now() - cached.timestamp > this.CACHE_TTL) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    return cached.data;
-  }
-
-  private setCache(key: string, data: any, ttl?: number): void {
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now(),
-    });
-
-    // Auto-cleanup expired cache
-    setTimeout(() => {
-      this.cache.delete(key);
-    }, ttl || this.CACHE_TTL);
-  }
-
-  /**
-   * 清空缓存
-   */
-  clearCache(): void {
-    this.cache.clear();
-  }
+  // ========== 已弃用：缓存现在使用 Redis ==========
+  // 为了向后兼容，保留这些方法但不再使用
 }
 
 // Maintain backward compatibility
