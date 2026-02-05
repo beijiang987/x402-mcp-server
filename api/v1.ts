@@ -9,6 +9,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { GraphQLClient } from 'graphql-request';
 
+
 // Subgraph URLs
 const SUBGRAPH_URLS: Record<string, string> = {
     sepolia: 'https://gateway.thegraph.com/api/00a452ad3cd1900273ea62c1bf283f93/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqPxJYWt',
@@ -91,7 +92,7 @@ async function analyzeTaskWithClaude(task: string) {
                           'anthropic-version': '2023-06-01',
                 },
                 body: JSON.stringify({
-                          model: 'claude-sonnet-4-20250514',
+                          model: 'claude-3-5-sonnet-20241022',
                           max_tokens: 500,
                           messages: [{
                                       role: 'user',
