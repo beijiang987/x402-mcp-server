@@ -1,0 +1,37 @@
+
+> x402-mcp-server@1.0.0 test:smoke
+> tsx test/smoke-test-sepolia.ts
+
+🧪 ERC-8004 Sepolia 冒烟测试
+
+=============================================================
+
+🔑 使用账户: 0xF8ce6Ae465d14dc8Be9C249D4872D0b60B083C63
+
+------------------------------------------------------------
+测试 1: 检查合约部署
+------------------------------------------------------------
+✅ IdentityRegistry 合约存在
+✅ ReputationRegistry 合约存在
+
+------------------------------------------------------------
+测试 2: 检查账户余额
+------------------------------------------------------------
+💰 余额: 0.0000 ETH
+⚠️  余额较低，建议至少 0.01 ETH
+   获取测试 ETH: https://sepoliafaucet.com/ 或 https://faucet.quicknode.com/ethereum/sepolia
+
+------------------------------------------------------------
+测试 3: 读取合约状态
+------------------------------------------------------------
+
+⚠️  警告: 需要真实的 ABI 才能进行此测试
+   1. 克隆官方仓库: git clone https://github.com/erc-8004/erc-8004-contracts.git
+   2. 复制 ABI: cp erc-8004-contracts/abis/*.json src/erc8004/abis/
+   3. 在本文件中取消 import 语句的注释
+   4. 重新运行此脚本
+
+
+💥 测试异常终止: TypeError: Cannot read properties of undefined (reading 'length')
+    at smokeTest (/Users/wangjiangbei/x402-mcp-server/test/smoke-test-sepolia.ts:154:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)

@@ -12,6 +12,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { X402PaymentService } from './payment-service.js';
 import { DataService } from './data-service.js';
+import { ERC8004Service } from './erc8004/erc8004-service.js';
 import { logger } from './utils/logger.js';
 
 // ============================================
@@ -231,12 +232,136 @@ const TOOLS: Tool[] = [
       required: ['contract_address'],
     },
   },
+  // ========== ERC-8004 AI Agent 身份和声誉管理工具 ==========
+  {
+    name: 'erc8004_register_agent',
+    description: 'Register a new AI agent on-chain with ERC-8004 identity standard',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: 'Agent name',
+        },
+        description: {
+          type: 'string',
+          description: 'Agent description',
+        },
+        capabilities: {
+          type: 'array',
+          description: 'List of agent capabilities',
+          items: { type: 'string' },
+        },
+        apiEndpoint: {
+          type: 'string',
+          description: 'Agent API endpoint URL (optional)',
+        },
+        tags: {
+          type: 'array',
+          description: 'Tags for categorization (optional)',
+          items: { type: 'string' },
+        },
+      },
+      required: ['name', 'description', 'capabilities'],
+    },
+  },
+  {
+    name: 'erc8004_search_agents',
+    description: 'Search for AI agents by keyword, tags, capabilities, or rating',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        keyword: {
+          type: 'string',
+          description: 'Search keyword (optional)',
+        },
+        tags: {
+          type: 'array',
+          description: 'Filter by tags (optional)',
+          items: { type: 'string' },
+        },
+        capabilities: {
+          type: 'array',
+          description: 'Filter by capabilities (optional)',
+          items: { type: 'string' },
+        },
+        minRating: {
+          type: 'number',
+          description: 'Minimum average rating (0-5, optional)',
+        },
+        limit: {
+          type: 'number',
+          description: 'Maximum results to return',
+          default: 20,
+        },
+      },
+    },
+  },
+  {
+    name: 'erc8004_get_agent',
+    description: 'Get detailed information about a specific AI agent',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        agentId: {
+          type: 'string',
+          description: 'The agent ID to query',
+        },
+      },
+      required: ['agentId'],
+    },
+  },
+  {
+    name: 'erc8004_submit_feedback',
+    description: 'Submit feedback/rating for an AI agent',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        agentId: {
+          type: 'string',
+          description: 'The agent ID to rate',
+        },
+        rating: {
+          type: 'number',
+          description: 'Rating from 1-5 stars',
+        },
+        comment: {
+          type: 'string',
+          description: 'Feedback comment',
+        },
+      },
+      required: ['agentId', 'rating', 'comment'],
+    },
+  },
+  {
+    name: 'erc8004_get_trending',
+    description: 'Get trending/popular AI agents based on ratings and usage',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        limit: {
+          type: 'number',
+          description: 'Number of agents to return',
+          default: 10,
+        },
+      },
+    },
+  },
+  {
+    name: 'erc8004_get_stats',
+    description: 'Get platform statistics (total agents, feedbacks, average rating)',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+    },
+  },
 ];
 
 class X402MCPServer {
   private server: Server;
   private paymentService: X402PaymentService;
   private dataService: DataService;
+  private erc8004Service: ERC8004Service | null = null;
 
   constructor() {
     this.server = new Server(
@@ -254,6 +379,23 @@ class X402MCPServer {
     // Use singleton instances
     this.paymentService = X402PaymentService.getInstance();
     this.dataService = new DataService();
+
+    // 初始化 ERC8004 服务（如果配置了私钥）
+    try {
+      const privateKey = process.env.X402_WALLET_PRIVATE_KEY;
+      const network = (process.env.ERC8004_NETWORK || 'sepolia') as 'sepolia' | 'mainnet' | 'base';
+      const rpcUrl = process.env.X402_RPC_URL;
+
+      if (privateKey) {
+        this.erc8004Service = new ERC8004Service(privateKey, network, rpcUrl);
+        logger.info('ERC8004 服务已初始化');
+      } else {
+        logger.warn('未配置 X402_WALLET_PRIVATE_KEY，ERC8004 功能将不可用');
+      }
+    } catch (error) {
+      logger.error('初始化 ERC8004 服务失败', { error });
+    }
+
     this.setupToolHandlers();
 
     this.server.onerror = (error) => console.error('[MCP Error]', error);
@@ -411,6 +553,134 @@ class X402MCPServer {
                 {
                   type: 'text',
                   text: JSON.stringify(result, null, 2),
+                },
+              ],
+            };
+          }
+
+          // ========== ERC-8004 工具 ==========
+          case 'erc8004_register_agent': {
+            if (!this.erc8004Service) {
+              throw new Error('ERC8004 服务未初始化，请配置 X402_WALLET_PRIVATE_KEY');
+            }
+
+            const metadata = {
+              name: args.name as string,
+              description: args.description as string,
+              capabilities: args.capabilities as string[],
+              apiEndpoint: args.apiEndpoint as string | undefined,
+              tags: args.tags as string[] | undefined,
+            };
+
+            const result = await this.erc8004Service.registerAgent(
+              args.name as string,
+              metadata
+            );
+
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: `✅ Agent 注册成功！\n\nAgent ID: ${result.agentId}\n交易哈希: ${result.txHash}\n\n请等待交易确认后，您的 agent 将在链上可见。`,
+                },
+              ],
+            };
+          }
+
+          case 'erc8004_search_agents': {
+            if (!this.erc8004Service) {
+              throw new Error('ERC8004 服务未初始化');
+            }
+
+            const result = await this.erc8004Service.searchAgents({
+              keyword: args.keyword as string | undefined,
+              tags: args.tags as string[] | undefined,
+              capabilities: args.capabilities as string[] | undefined,
+              minRating: args.minRating as number | undefined,
+              first: (args.limit as number) || 20,
+            });
+
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: `找到 ${result.length} 个 AI Agents:\n\n${JSON.stringify(result, null, 2)}`,
+                },
+              ],
+            };
+          }
+
+          case 'erc8004_get_agent': {
+            if (!this.erc8004Service) {
+              throw new Error('ERC8004 服务未初始化');
+            }
+
+            const result = await this.erc8004Service.getAgent(
+              args.agentId as string
+            );
+
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(result, null, 2),
+                },
+              ],
+            };
+          }
+
+          case 'erc8004_submit_feedback': {
+            if (!this.erc8004Service) {
+              throw new Error('ERC8004 服务未初始化');
+            }
+
+            const result = await this.erc8004Service.submitFeedback(
+              args.agentId as string,
+              args.rating as number,
+              args.comment as string
+            );
+
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: `✅ 反馈提交成功！\n\nFeedback ID: ${result.feedbackId}\n交易哈希: ${result.txHash}`,
+                },
+              ],
+            };
+          }
+
+          case 'erc8004_get_trending': {
+            if (!this.erc8004Service) {
+              throw new Error('ERC8004 服务未初始化');
+            }
+
+            const result = await this.erc8004Service.getTrendingAgents(
+              (args.limit as number) || 10
+            );
+
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: `🔥 热门 AI Agents:\n\n${JSON.stringify(result, null, 2)}`,
+                },
+              ],
+            };
+          }
+
+          case 'erc8004_get_stats': {
+            if (!this.erc8004Service) {
+              throw new Error('ERC8004 服务未初始化');
+            }
+
+            const result = await this.erc8004Service.getStats();
+
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: `📊 平台统计:\n\n总 Agents: ${result.totalAgents}\n总反馈数: ${result.totalFeedbacks}\n平均评分: ${result.averageRating.toFixed(2)}/5.0`,
                 },
               ],
             };

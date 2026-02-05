@@ -1,6 +1,19 @@
-# x402 MCP Server
+# x402 + ERC-8004 MCP Server
 
-一个用于集成 [x402 支付协议](https://www.x402.org) 的 Model Context Protocol (MCP) 服务器。该工具允许 AI 助手（如 Claude）验证支付、创建支付请求，并与基于区块链的互联网原生支付系统进行交互。
+一个集成了 **[x402 支付协议](https://www.x402.org)** 和 **[ERC-8004 AI Agent 标准](https://eips.ethereum.org/EIPS/eip-8004)** 的 Model Context Protocol (MCP) 服务器。
+
+## ✨ 新特性：ERC-8004 AI Agent 身份和声誉管理
+
+现已支持 **ERC-8004 标准**，实现 AI Agent 的去中心化身份注册、声誉管理和可发现性！
+
+🎯 **核心功能：**
+- 🆔 **链上身份** - AI Agent 在区块链上拥有可验证的唯一身份
+- ⭐ **声誉系统** - 基于真实交互的去中心化评分机制
+- 🔍 **智能搜索** - 通过 The Graph 索引，快速发现优质 Agents
+- 💰 **支付集成** - 高级功能使用 x402 协议收费
+- 📊 **数据分析** - 完整的 Agent 统计和趋势分析
+
+📖 **[ERC-8004 集成完整指南](./ERC8004_INTEGRATION_GUIDE.md)** - 详细的使用教程和变现路径
 
 ---
 
@@ -41,7 +54,9 @@ x402 是一个开放的互联网原生支付标准，基于 HTTP 402 状态码�
 
 该 MCP 服务器提供以下工具：
 
-### 1. `verify_payment`
+### x402 支付工具
+
+#### 1. `verify_payment`
 验证 x402 支付签名并检查支付是否有效。
 
 **参数：**
@@ -72,10 +87,67 @@ x402 是一个开放的互联网原生支付标准，基于 HTTP 402 状态码�
 
 **返回：** 支付状态，包括确认状态、区块号和确认数。
 
-### 4. `list_payment_configs`
+#### 4. `list_payment_configs`
 列出所有已配置的支付端点及其要求。
 
 **返回：** 所有支付配置的列表。
+
+### ERC-8004 AI Agent 工具
+
+#### 5. `erc8004_register_agent`
+在链上注册新的 AI Agent，获得去中心化身份。
+
+**参数：**
+- `name` (string, 必需): Agent 名称
+- `description` (string, 必需): Agent 描述
+- `capabilities` (array, 必需): Agent 能力列表
+- `apiEndpoint` (string, 可选): API 端点 URL
+- `tags` (array, 可选): 分类标签
+
+**返回：** Agent ID 和交易哈希
+
+#### 6. `erc8004_search_agents`
+搜索和发现 AI Agents（支持关键词、标签、能力、评分筛选）。
+
+**参数：**
+- `keyword` (string, 可选): 搜索关键词
+- `tags` (array, 可选): 标签筛选
+- `capabilities` (array, 可选): 能力筛选
+- `minRating` (number, 可选): 最低评分（0-5）
+- `limit` (number, 可选): 结果数量（默认 20）
+
+**返回：** 符合条件的 Agent 列表
+
+#### 7. `erc8004_get_agent`
+获取指定 Agent 的详细信息（包括声誉数据）。
+
+**参数：**
+- `agentId` (string, 必需): Agent ID
+
+**返回：** Agent 完整信息
+
+#### 8. `erc8004_submit_feedback`
+为 Agent 提交评分和反馈。
+
+**参数：**
+- `agentId` (string, 必需): Agent ID
+- `rating` (number, 必需): 评分 1-5 星
+- `comment` (string, 必需): 评论内容
+
+**返回：** Feedback ID 和交易哈希
+
+#### 9. `erc8004_get_trending`
+获取热门/趋势 AI Agents。
+
+**参数：**
+- `limit` (number, 可选): 结果数量（默认 10）
+
+**返回：** 热门 Agent 列表
+
+#### 10. `erc8004_get_stats`
+获取平台统计数据（总 Agents 数、总反馈数、平均评分等）。
+
+**返回：** 平台统计信息
 
 ## 安装
 
