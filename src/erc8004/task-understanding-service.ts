@@ -116,29 +116,66 @@ ${taskDescription}
     const skills: string[] = [];
     const capabilities: string[] = [];
 
-    // 领域检测
-    if (lowerText.includes('blockchain') || lowerText.includes('crypto') || lowerText.includes('web3')) {
+    // 领域检测 - 区块链/加密货币
+    if (
+      lowerText.includes('blockchain') || lowerText.includes('crypto') || lowerText.includes('web3') ||
+      lowerText.includes('区块链') || lowerText.includes('加密') || lowerText.includes('链上') ||
+      lowerText.includes('合约') || lowerText.includes('代币') || lowerText.includes('钱包') ||
+      lowerText.includes('nft') || lowerText.includes('defi')
+    ) {
       domains.push('blockchain');
     }
-    if (lowerText.includes('finance') || lowerText.includes('trading') || lowerText.includes('defi')) {
+
+    // 领域检测 - 金融/交易
+    if (
+      lowerText.includes('finance') || lowerText.includes('trading') || lowerText.includes('defi') ||
+      lowerText.includes('金融') || lowerText.includes('交易') || lowerText.includes('投资') ||
+      lowerText.includes('价格') || lowerText.includes('市场') || lowerText.includes('收益') ||
+      lowerText.includes('鲸鱼')
+    ) {
       domains.push('finance');
     }
-    if (lowerText.includes('data') || lowerText.includes('analytics')) {
+
+    // 领域检测 - 数据分析
+    if (
+      lowerText.includes('data') || lowerText.includes('analytics') || lowerText.includes('analysis') ||
+      lowerText.includes('数据') || lowerText.includes('分析') || lowerText.includes('统计') ||
+      lowerText.includes('监控') || lowerText.includes('查询') || lowerText.includes('报告')
+    ) {
       domains.push('data-analysis');
+    }
+
+    // 领域检测 - 安全审计
+    if (
+      lowerText.includes('security') || lowerText.includes('audit') || lowerText.includes('safety') ||
+      lowerText.includes('安全') || lowerText.includes('审计') || lowerText.includes('风险') ||
+      lowerText.includes('检测')
+    ) {
+      domains.push('security');
     }
 
     // 技能检测
     if (lowerText.includes('python')) skills.push('python');
-    if (lowerText.includes('solidity') || lowerText.includes('smart contract')) skills.push('solidity');
+    if (lowerText.includes('solidity') || lowerText.includes('smart contract') || lowerText.includes('智能合约')) {
+      skills.push('solidity');
+    }
     if (lowerText.includes('javascript') || lowerText.includes('typescript')) skills.push('javascript');
+    if (lowerText.includes('web3') || lowerText.includes('ethers') || lowerText.includes('viem')) {
+      skills.push('web3');
+    }
 
     // 能力检测
     if (lowerText.includes('api')) capabilities.push('REST-API');
     if (lowerText.includes('webhook')) capabilities.push('webhook');
-    if (lowerText.includes('websocket') || lowerText.includes('real-time')) capabilities.push('websocket');
+    if (lowerText.includes('websocket') || lowerText.includes('real-time') || lowerText.includes('实时')) {
+      capabilities.push('websocket');
+    }
+    if (lowerText.includes('定时') || lowerText.includes('cron') || lowerText.includes('schedule')) {
+      capabilities.push('cron');
+    }
 
     return {
-      summary: taskDescription.substring(0, 100) + '...',
+      summary: taskDescription.substring(0, 100) + (taskDescription.length > 100 ? '...' : ''),
       intent: 'Extract from task description',
       domains: domains.length > 0 ? domains : ['general'],
       skills: skills.length > 0 ? skills : ['general'],

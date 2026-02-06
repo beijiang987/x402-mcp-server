@@ -878,8 +878,10 @@ Response:
                         </div>
 
                         <div style="font-size: 12px; color: var(--text-secondary);">
-                            📊 基于 ${match.reputation.totalFeedbacks} 条反馈 |
-                            ⚠️ Sybil 风险: ${(match.reputation.sybilRisk * 100).toFixed(1)}%
+                            ${match.reputation.totalFeedbacks > 0
+                                ? `📊 基于 ${match.reputation.totalFeedbacks} 条反馈 | ⚠️ Sybil 风险: ${(match.reputation.sybilRisk * 100).toFixed(1)}%`
+                                : `📊 暂无反馈数据，声誉评分基于链上历史记录`
+                            }
                         </div>
                     </div>
                 `).join('');
