@@ -121,9 +121,20 @@ ${taskDescription}
       lowerText.includes('blockchain') || lowerText.includes('crypto') || lowerText.includes('web3') ||
       lowerText.includes('区块链') || lowerText.includes('加密') || lowerText.includes('链上') ||
       lowerText.includes('合约') || lowerText.includes('代币') || lowerText.includes('钱包') ||
-      lowerText.includes('nft') || lowerText.includes('defi')
+      lowerText.includes('defi')
     ) {
       domains.push('blockchain');
+    }
+
+    // 领域检测 - NFT
+    if (
+      lowerText.includes('nft') || lowerText.includes('地板价') || lowerText.includes('铸造') ||
+      lowerText.includes('mint') || lowerText.includes('opensea') || lowerText.includes('藏品')
+    ) {
+      domains.push('nft');
+      if (!domains.includes('blockchain')) {
+        domains.push('blockchain');
+      }
     }
 
     // 领域检测 - 金融/交易
@@ -154,6 +165,49 @@ ${taskDescription}
       domains.push('security');
     }
 
+    // 领域检测 - 社交媒体
+    if (
+      lowerText.includes('social') || lowerText.includes('twitter') || lowerText.includes('推特') ||
+      lowerText.includes('发推') || lowerText.includes('推文') || lowerText.includes('telegram') ||
+      lowerText.includes('discord') || lowerText.includes('微博') || lowerText.includes('社交')
+    ) {
+      domains.push('social-media');
+    }
+
+    // 领域检测 - 数据采集
+    if (
+      lowerText.includes('crawler') || lowerText.includes('scraping') || lowerText.includes('爬虫') ||
+      lowerText.includes('抓取') || lowerText.includes('采集') || lowerText.includes('爬取')
+    ) {
+      domains.push('data-collection');
+    }
+
+    // 领域检测 - 自然语言处理
+    if (
+      lowerText.includes('nlp') || lowerText.includes('translation') || lowerText.includes('翻译') ||
+      lowerText.includes('总结') || lowerText.includes('摘要') || lowerText.includes('summarize') ||
+      lowerText.includes('文本') || lowerText.includes('语言')
+    ) {
+      domains.push('nlp');
+    }
+
+    // 领域检测 - AI 生成
+    if (
+      lowerText.includes('generate') || lowerText.includes('ai画') || lowerText.includes('生成图') ||
+      lowerText.includes('绘画') || lowerText.includes('dall-e') || lowerText.includes('stable diffusion') ||
+      lowerText.includes('midjourney') || lowerText.includes('图片生成')
+    ) {
+      domains.push('ai-generation');
+    }
+
+    // 领域检测 - 自动化
+    if (
+      lowerText.includes('automation') || lowerText.includes('自动化') || lowerText.includes('自动发') ||
+      lowerText.includes('定时发') || lowerText.includes('批量') || lowerText.includes('bot')
+    ) {
+      domains.push('automation');
+    }
+
     // 技能检测
     if (lowerText.includes('python')) skills.push('python');
     if (lowerText.includes('solidity') || lowerText.includes('smart contract') || lowerText.includes('智能合约')) {
@@ -162,6 +216,12 @@ ${taskDescription}
     if (lowerText.includes('javascript') || lowerText.includes('typescript')) skills.push('javascript');
     if (lowerText.includes('web3') || lowerText.includes('ethers') || lowerText.includes('viem')) {
       skills.push('web3');
+    }
+    if (lowerText.includes('gpt') || lowerText.includes('claude') || lowerText.includes('llm')) {
+      skills.push('llm');
+    }
+    if (lowerText.includes('机器学习') || lowerText.includes('machine learning') || lowerText.includes('ml')) {
+      skills.push('machine-learning');
     }
 
     // 能力检测
