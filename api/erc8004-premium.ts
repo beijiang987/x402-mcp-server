@@ -105,12 +105,12 @@ async function handlePremiumSearch(req: VercelRequest, res: VercelResponse) {
     skills: parseArray(skills),
     domains: parseArray(domains),
     minRating: minRating ? parseFloat(minRating as string) : undefined,
-    minFeedbacks: minFeedbacks ? parseInt(minFeedbacks as string) : undefined,
+    minFeedbacks: minFeedbacks ? parseInt(minFeedbacks as string, 10) : undefined,
     x402Only: x402Only === 'true',
     sortBy: sortBy as any,
     sortOrder: sortOrder as any,
-    limit: Math.min(100, parseInt(limit as string)), // 最多 100
-    offset: parseInt(offset as string),
+    limit: Math.min(100, parseInt(limit as string, 10)), // 最多 100
+    offset: parseInt(offset as string, 10),
   });
 
   return res.status(200).json({

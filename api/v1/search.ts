@@ -67,12 +67,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       skills: Array.isArray(skills) ? skills : skills ? skills.split(',') : undefined,
       domains: Array.isArray(domains) ? domains : domains ? domains.split(',') : undefined,
       minRating: minRating ? parseFloat(minRating) : undefined,
-      minFeedbacks: minFeedbacks ? parseInt(minFeedbacks) : undefined,
+      minFeedbacks: minFeedbacks ? parseInt(minFeedbacks, 10) : undefined,
       x402Only: x402Only === 'true' || x402Only === true,
       sortBy: sortBy as any,
       sortOrder: sortOrder as any,
-      limit: parseInt(limit.toString()),
-      offset: parseInt(offset.toString()),
+      limit: parseInt(limit.toString(, 10)),
+      offset: parseInt(offset.toString(, 10)),
     });
 
     const response = {

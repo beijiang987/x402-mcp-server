@@ -12,7 +12,6 @@
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { db } from '../src/database.js';
 import { sql } from '@vercel/postgres';
 import crypto from 'crypto';
 
@@ -137,7 +136,14 @@ async function handleBasicStats(req: VercelRequest, res: VercelResponse) {
 
 async function handleInitDatabase(req: VercelRequest, res: VercelResponse) {
   const secret = req.query.secret as string;
-  const expectedSecret = process.env.ADMIN_SECRET || 'x402-admin-2024';
+  const expectedSecret = process.env.ADMIN_SECRET;
+
+  if (!expectedSecret) {
+    return res.status(500).json({
+      error: 'Server Configuration Error',
+      message: 'ADMIN_SECRET environment variable is not configured',
+    });
+  }
 
   if (secret !== expectedSecret) {
     return res.status(403).json({
@@ -279,7 +285,14 @@ function generateResponseTime(): number {
 
 async function handleSeedData(req: VercelRequest, res: VercelResponse) {
   const secret = req.query.secret as string;
-  const expectedSecret = process.env.ADMIN_SECRET || 'x402-admin-2024';
+  const expectedSecret = process.env.ADMIN_SECRET;
+
+  if (!expectedSecret) {
+    return res.status(500).json({
+      error: 'Server Configuration Error',
+      message: 'ADMIN_SECRET environment variable is not configured',
+    });
+  }
 
   if (secret !== expectedSecret) {
     return res.status(403).json({

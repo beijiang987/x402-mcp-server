@@ -26,6 +26,18 @@ export class ERC8004GraphClient {
   }
 
   /**
+   * 安全地解析 JSON，失败时返回 null
+   */
+  private safeParseJSON(jsonString: string): any {
+    try {
+      return JSON.parse(jsonString);
+    } catch (error) {
+      console.warn('Failed to parse JSON metadata:', error);
+      return null;
+    }
+  }
+
+  /**
    * 查询所有已注册的 agents
    */
   async getAllAgents(params?: {
@@ -70,8 +82,8 @@ export class ERC8004GraphClient {
       agentId: agent.agentId,
       owner: agent.owner,
       name: agent.name,
-      metadata: JSON.parse(agent.metadata),
-      createdAt: parseInt(agent.createdAt),
+      metadata: this.safeParseJSON(agent.metadata),
+      createdAt: parseInt(agent.createdAt, 10),
     }));
   }
 
@@ -108,8 +120,8 @@ export class ERC8004GraphClient {
       agentId: agent.agentId,
       owner: agent.owner,
       name: agent.name,
-      metadata: JSON.parse(agent.metadata),
-      createdAt: parseInt(agent.createdAt),
+      metadata: this.safeParseJSON(agent.metadata),
+      createdAt: parseInt(agent.createdAt, 10),
       reputation,
     };
   }
@@ -168,8 +180,8 @@ export class ERC8004GraphClient {
         agentId: agent.agentId,
         owner: agent.owner,
         name: agent.name,
-        metadata: JSON.parse(agent.metadata),
-        createdAt: parseInt(agent.createdAt),
+        metadata: this.safeParseJSON(agent.metadata),
+        createdAt: parseInt(agent.createdAt, 10),
         reputation,
       };
     });
@@ -251,9 +263,9 @@ export class ERC8004GraphClient {
       feedbackId: feedback.feedbackId,
       agentId: feedback.agentId,
       reviewer: feedback.reviewer,
-      rating: parseInt(feedback.rating),
+      rating: parseInt(feedback.rating, 10),
       comment: feedback.comment,
-      timestamp: parseInt(feedback.timestamp),
+      timestamp: parseInt(feedback.timestamp, 10),
     }));
   }
 
@@ -296,8 +308,8 @@ export class ERC8004GraphClient {
         agentId: agent.agentId,
         owner: agent.owner,
         name: agent.name,
-        metadata: JSON.parse(agent.metadata),
-        createdAt: parseInt(agent.createdAt),
+        metadata: this.safeParseJSON(agent.metadata),
+        createdAt: parseInt(agent.createdAt, 10),
         reputation,
         trendingScore,
       };
@@ -343,7 +355,7 @@ export class ERC8004GraphClient {
       const feedbacks = agent.feedbacks || [];
       totalFeedbacks += feedbacks.length;
       feedbacks.forEach((f: any) => {
-        totalRating += parseInt(f.rating);
+        totalRating += parseInt(f.rating, 10);
       });
     });
 
@@ -367,7 +379,7 @@ export class ERC8004GraphClient {
     }
 
     const totalRating = feedbacks.reduce(
-      (sum, f) => sum + parseInt(f.rating),
+      (sum, f) => sum + parseInt(f.rating, 10),
       0
     );
 

@@ -21,6 +21,10 @@ const getService = () => {
     throw new Error('缺少 X402_WALLET_PRIVATE_KEY 环境变量');
   }
 
+  if (!rpcUrl) {
+    throw new Error('缺少 X402_RPC_URL 环境变量');
+  }
+
   return new ERC8004Service(privateKey, network, rpcUrl);
 };
 
@@ -94,8 +98,8 @@ async function handleSearch(req: VercelRequest, res: VercelResponse) {
   const service = getService();
   const agents = await service.searchAgents({
     keyword: keyword as string,
-    first: parseInt(first as string),
-    skip: parseInt(skip as string),
+    first: parseInt(first as string, 10),
+    skip: parseInt(skip as string, 10),
   });
 
   return res.status(200).json({
@@ -112,7 +116,7 @@ async function handleTrending(req: VercelRequest, res: VercelResponse) {
   const { limit = '10' } = req.query;
 
   const service = getService();
-  const agents = await service.getTrendingAgents(parseInt(limit as string));
+  const agents = await service.getTrendingAgents(parseInt(limit as string, 10));
 
   return res.status(200).json({
     success: true,
@@ -151,7 +155,7 @@ async function handleGetFeedbacks(req: VercelRequest, res: VercelResponse) {
   }
 
   // 检查是否请求高级功能（超过 10 条反馈）
-  const requestedCount = parseInt(first as string);
+  const requestedCount = parseInt(first as string, 10);
   if (requestedCount > 10) {
     // 需要 x402 支付
     const paymentHeader = req.headers['x-payment'] as string;
@@ -179,7 +183,7 @@ async function handleGetFeedbacks(req: VercelRequest, res: VercelResponse) {
   const service = getService();
   const feedbacks = await service.getAgentFeedbacks(agentId as string, {
     first: requestedCount,
-    skip: parseInt(skip as string),
+    skip: parseInt(skip as string, 10),
   });
 
   return res.status(200).json({
@@ -244,7 +248,7 @@ async function handleSubmitFeedback(req: VercelRequest, res: VercelResponse) {
   const service = getService();
   const result = await service.submitFeedback(
     agentId,
-    parseInt(rating),
+    parseInt(rating, 10),
     comment
   );
 

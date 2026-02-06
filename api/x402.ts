@@ -17,6 +17,17 @@ export default async function handler(
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Validate payment addresses are configured
+  const paymentAddressBase = process.env.X402_PAYMENT_ADDRESS_BASE;
+  const paymentAddressEth = process.env.X402_PAYMENT_ADDRESS_ETH;
+
+  if (!paymentAddressBase || !paymentAddressEth) {
+    return res.status(500).json({
+      error: 'Server Configuration Error',
+      message: 'Payment addresses not configured. Please set X402_PAYMENT_ADDRESS_BASE and X402_PAYMENT_ADDRESS_ETH environment variables.'
+    });
+  }
+
   // Return 402 Payment Required with discovery information
   return res.status(402).json({
     x402Version: 2,
@@ -74,7 +85,7 @@ export default async function handler(
         network: 'eip155:8453',
         amount: '0',
         asset: 'eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-        payTo: process.env.X402_PAYMENT_ADDRESS_BASE || '0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3',
+        payTo: paymentAddressBase,
         maxTimeoutSeconds: 300,
         extra: {}
       },
@@ -83,7 +94,7 @@ export default async function handler(
         network: 'eip155:1',
         amount: '0',
         asset: 'eip155:1/erc20:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        payTo: process.env.X402_PAYMENT_ADDRESS_ETH || '0xa893994dbe2ea7dd7e48410638d6a1b1b663b6a3',
+        payTo: paymentAddressEth,
         maxTimeoutSeconds: 300,
         extra: {}
       }

@@ -44,8 +44,8 @@ const config = createEndpointConfig({
 
 // Handler function
 export default withX402Auth(config, async (params) => {
-  const minAmountUsd = parseInt(params.min_value_usd || '100000');
-  const limit = parseInt(params.limit || '10');
+  const minAmountUsd = parseInt(params.min_value_usd || '100000', 10);
+  const limit = parseInt(params.limit || '10', 10);
 
   const whaleData = await dataService.getWhaleTransactions(
     params.token_address,
