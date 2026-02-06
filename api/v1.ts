@@ -92,7 +92,7 @@ async function analyzeTaskWithClaude(task: string) {
                           'anthropic-version': '2023-06-01',
                 },
                 body: JSON.stringify({
-                          model: 'claude-3-5-sonnet-20241022',
+                          model: 'claude-3-haiku-20240307',
                           max_tokens: 500,
                           messages: [{
                                       role: 'user',
@@ -113,7 +113,7 @@ async function analyzeTaskWithClaude(task: string) {
         });
 
       if (!response.ok) {
-              console.error('Claude API error:', response.status);
+              const errBody = await response.text(); console.error('Claude API error:', response.status, errBody);
               return keywordAnalysis(task);
       }
 
