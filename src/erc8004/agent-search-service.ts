@@ -131,11 +131,11 @@ export class AgentSearchService {
       }))
     );
 
-    // 3. 应用过滤器
+    // 3. 应用过滤器（改为宽松模式：只过滤关键词和 x402，其他用评分）
     let filteredAgents = agentsWithMetadata.filter((item) => {
       const { agent, metadata } = item;
 
-      // 关键词匹配
+      // 关键词匹配（保留严格过滤）
       if (keyword) {
         const searchText = [
           metadata?.name,
@@ -153,35 +153,13 @@ export class AgentSearchService {
         }
       }
 
-      // 能力筛选
-      if (capabilities && capabilities.length > 0) {
-        const agentCapabilities = metadata?.capabilities || [];
-        if (!capabilities.some((cap) => agentCapabilities.includes(cap))) {
-          return false;
-        }
-      }
-
-      // 技能筛选
-      if (skills && skills.length > 0) {
-        const agentSkills = metadata?.skills || [];
-        if (!skills.some((skill) => agentSkills.includes(skill))) {
-          return false;
-        }
-      }
-
-      // 领域筛选
-      if (domains && domains.length > 0) {
-        const agentDomains = metadata?.domains || [];
-        if (!domains.some((domain) => agentDomains.includes(domain))) {
-          return false;
-        }
-      }
-
-      // x402 筛选
+      // x402 筛选（保留严格过滤）
       if (x402Only && !metadata?.x402Support) {
         return false;
       }
 
+      // ✅ 移除 capabilities/skills/domains 的严格过滤
+      // 这些现在只影响评分，不直接过滤 Agent
       return true;
     });
 
@@ -214,7 +192,7 @@ export class AgentSearchService {
       const reputation = reputationScores[agent.agentId];
 
       // 相关性评分（0-1）
-      let relevanceScore = 0.5; // 基础分
+      let relevanceScore = 0.3; // 降低基础分，让有匹配的 Agent 得分更高
 
       if (keyword && metadata) {
         const searchText = [
@@ -238,9 +216,28 @@ export class AgentSearchService {
         }
       }
 
-      // 能力/技能匹配
-      if (capabilities || skills) {
-        relevanceScore += 0.1;
+      // ✅ 改进：基于实际匹配度计算评分
+      if (metadata) {
+        // Domains 匹配（最高 0.25 分）
+        if (domains && domains.length > 0) {
+          const agentDomains = metadata.domains || [];
+          const matchCount = domains.filter(d => agentDomains.includes(d)).length;
+          relevanceScore += (matchCount / domains.length) * 0.25;
+        }
+
+        // Capabilities 匹配（最高 0.20 分）
+        if (capabilities && capabilities.length > 0) {
+          const agentCapabilities = metadata.capabilities || [];
+          const matchCount = capabilities.filter(c => agentCapabilities.includes(c)).length;
+          relevanceScore += (matchCount / capabilities.length) * 0.20;
+        }
+
+        // Skills 匹配（最高 0.15 分）
+        if (skills && skills.length > 0) {
+          const agentSkills = metadata.skills || [];
+          const matchCount = skills.filter(s => agentSkills.includes(s)).length;
+          relevanceScore += (matchCount / skills.length) * 0.15;
+        }
       }
 
       return {
