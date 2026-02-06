@@ -5,12 +5,8 @@
                   "destination": "/docs.html"
           },
           {
-                  "source": "/api/v1/match",
-                  "destination": "/api/v1?route=match"
-          },
-          {
-                  "source": "/api/v1/reputation/:network/:agentId",
-                  "destination": "/api/v1?route=reputation&network=:network&agentId=:agentId"
+                  "source": "/agentrank",
+                  "destination": "/agentrank.html"
           },
           {
                   "source": "/api/admin/health",
