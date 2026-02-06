@@ -10,7 +10,19 @@
           },
           {
                   "source": "/api/admin/health",
-                  "destination": "/api/admin/stats?type=health"
+                  "destination": "/api/admin?action=stats&type=health"
+          },
+          {
+                  "source": "/api/admin/stats",
+                  "destination": "/api/admin?action=stats"
+          },
+          {
+                  "source": "/api/admin/init-database",
+                  "destination": "/api/admin?action=init-database"
+          },
+          {
+                  "source": "/api/admin/seed-data",
+                  "destination": "/api/admin?action=seed-data"
           },
           {
                   "source": "/api/x402",
@@ -18,11 +30,11 @@
           },
           {
                   "source": "/api/x402/tokens/price",
-                  "destination": "/api/x402/tokens/price"
+                  "destination": "/api/x402/tokens?endpoint=price"
           },
           {
                   "source": "/api/x402/tokens/prices/multichain",
-                  "destination": "/api/x402/tokens/prices/multichain"
+                  "destination": "/api/x402/tokens?endpoint=multichain"
           },
           {
                   "source": "/api/x402/pools/analytics",
@@ -38,11 +50,11 @@
           },
           {
                   "source": "/api/x402/token-price",
-                  "destination": "/api/x402/tokens/price"
+                  "destination": "/api/x402/tokens?endpoint=price"
           },
           {
                   "source": "/api/x402/multichain-price",
-                  "destination": "/api/x402/tokens/prices/multichain"
+                  "destination": "/api/x402/tokens?endpoint=multichain"
           },
           {
                   "source": "/api/x402/pool-analytics",
