@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AgentRank - AI Agent 智能匹配服务，基于 ERC-8004 链上声誉">
+    <title>AgentRank - AI Agent 智能匹配服务</title>
+    <link rel="stylesheet" href="style-binance.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Hero Section */
+        .hero-section {
+            padding: 120px 0 80px;
+            background: linear-gradient(135deg, rgba(240, 185, 11, 0.1) 0%, rgba(26, 32, 44, 1) 50%);
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 64px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            line-height: 1.1;
+            background: linear-gradient(135deg, var(--primary-gold) 0%, #FFF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 22px;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        .hero-cta {
+            display: inline-block;
+            padding: 16px 48px;
+            font-size: 18px;
+            font-weight: 700;
+            background: var(--primary-gold);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .hero-cta:hover {
+            background: #FCD535;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(240, 185, 11, 0.3);
+        }
+
+        /* Demo Section */
+        .demo-section {
+            padding: 80px 0;
+            background: var(--bg-secondary);
+        }
+
+        .demo-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .demo-title {
+            font-size: 36px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .demo-description {
+            font-size: 18px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .demo-input-group {
+            margin-bottom: 24px;
+        }
+
+        .demo-input {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 16px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .demo-input:focus {
+            outline: none;
+            border-color: var(--primary-gold);
+        }
+
+        .demo-examples {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .example-btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .example-btn:hover {
+            border-color: var(--primary-gold);
+            color: var(--primary-gold);
+        }
+
+        .demo-submit {
+            width: 100%;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            background: var(--primary-gold);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .demo-submit:hover:not(:disabled) {
+            background: #FCD535;
+            transform: translateY(-2px);
+        }
+
+        .demo-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .demo-loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .demo-results {
+            margin-top: 40px;
+        }
+
+        .result-header {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .result-understanding {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .understanding-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--primary-gold);
+        }
+
+        .understanding-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .understanding-item {
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+
+        .understanding-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .understanding-value {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .understanding-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .understanding-tag {
+            padding: 4px 12px;
+            background: rgba(240, 185, 11, 0.1);
+            border: 1px solid rgba(240, 185, 11, 0.3);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            color: var(--primary-gold);
+        }
+
+        /* Agent Card */
+        .agent-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .agent-card:hover {
+            border-color: var(--primary-gold);
+            box-shadow: 0 10px 30px rgba(240, 185, 11, 0.2);
+        }
+
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+
+        .agent-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .agent-id {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .agent-scores {
+            display: flex;
+            gap: 16px;
+        }
+
+        .score-item {
+            text-align: right;
+        }
+
+        .score-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .score-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-gold);
+        }
+
+        .agent-reason {
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-left: 3px solid var(--primary-gold);
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .agent-breakdown {
+            margin-bottom: 16px;
+        }
+
+        .breakdown-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .breakdown-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .breakdown-label {
+            width: 80px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .breakdown-bar {
+            flex: 1;
+            height: 20px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            margin-right: 12px;
+        }
+
+        .breakdown-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-gold) 0%, #FCD535 100%);
+            transition: width 0.5s ease;
+        }
+
+        .breakdown-value {
+            width: 30px;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 80px 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary-gold);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .feature-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Pricing Section */
+        .pricing-section {
+            padding: 80px 0;
+            background: var(--bg-secondary);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .pricing-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .pricing-card:hover {
+            border-color: var(--primary-gold);
+            box-shadow: 0 10px 30px rgba(240, 185, 11, 0.2);
+        }
+
+        .pricing-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        .pricing-price {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--primary-gold);
+            margin-bottom: 8px;
+        }
+
+        .pricing-unit {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .pricing-features {
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .pricing-feature {
+            padding: 8px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* API Section */
+        .api-section {
+            padding: 80px 0;
+        }
+
+        .code-block {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 60px 0;
+            text-align: center;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 24px;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-gold);
+        }
+
+        .footer-copyright {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 40px;
+            }
+
+            .hero-subtitle {
+                font-size: 18px;
+            }
+
+            .demo-container {
+                padding: 0 20px;
+            }
+
+            .demo-examples {
+                flex-direction: column;
+            }
+
+            .example-btn {
+                width: 100%;
+            }
+
+            .agent-scores {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">AgentRank</h1>
+            <p class="hero-subtitle">
+                AI Agent 世界的智能猎头 —— 输入任务需求，找到最靠谱的 Agent 合作伙伴。<br>
+                基于 ERC-8004 链上声誉，按次付费。
+            </p>
+            <a href="#demo" class="hero-cta">立即试用</a>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="demo-section">
+        <div class="container">
+            <div class="demo-container">
+                <h2 class="demo-title">试试看：描述你需要什么样的 Agent</h2>
+                <p class="demo-description">输入你的任务需求，AI 会帮你找到最合适的 Agent</p>
+
+                <div class="demo-input-group">
+                    <input
+                        type="text"
+                        id="taskInput"
+                        class="demo-input"
+                        placeholder="例如：我需要一个能分析鲸鱼钱包交易行为的 AI Agent"
+                    />
+                </div>
+
+                <div class="demo-examples">
+                    <button class="example-btn" onclick="useExample('我需要一个能分析鲸鱼钱包交易行为的 AI Agent')">
+                        🐳 分析鲸鱼钱包
+                    </button>
+                    <button class="example-btn" onclick="useExample('Find an agent that can monitor DeFi protocol TVL changes in real-time')">
+                        📊 Monitor DeFi TVL
+                    </button>
+                    <button class="example-btn" onclick="useExample('找一个能自动发推特的 Agent')">
+                        🐦 自动发推特
+                    </button>
+                    <button class="example-btn" onclick="useExample('帮我监控 NFT 地板价变化')">
+                        🖼️ NFT 地板价监控
+                    </button>
+                </div>
+
+                <button id="matchBtn" class="demo-submit" onclick="handleMatch()">
+                    开始匹配
+                </button>
+
+                <div id="loading" class="demo-loading" style="display: none;">
+                    <p>🔍 正在分析任务需求...</p>
+                    <p>🤖 正在搜索最佳候选...</p>
+                </div>
+
+                <div id="results" class="demo-results" style="display: none;">
+                    <h3 class="result-header">匹配结果</h3>
+
+                    <div id="understanding" class="result-understanding"></div>
+
+                    <div id="agentList"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-title">核心功能</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3 class="feature-title">智能理解</h3>
+                    <p class="feature-description">
+                        AI 分析你的任务需求，自动提取关键词、领域、技能和能力要求
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3 class="feature-title">精准匹配</h3>
+                    <p class="feature-description">
+                        从链上 Agent 数据库中，根据语义相似度找到最佳候选
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⭐</div>
+                    <h3 class="feature-title">链上声誉</h3>
+                    <p class="feature-description">
+                        基于 ERC-8004，反 Sybil 评分，真实可信的四维度声誉系统
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3 class="feature-title">按次付费</h3>
+                    <p class="feature-description">
+                        $0.001/次智能匹配，无需订阅，用多少付多少
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing-section">
+        <div class="container">
+            <h2 class="section-title">定价</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-name">智能匹配</div>
+                    <div class="pricing-price">$0.001</div>
+                    <div class="pricing-unit">每次</div>
+                    <div class="pricing-features">
+                        <div class="pricing-feature">✓ AI 任务理解</div>
+                        <div class="pricing-feature">✓ 语义相似度计算</div>
+                        <div class="pricing-feature">✓ 最多返回 10 个候选</div>
+                        <div class="pricing-feature">✓ 四维度声誉评分</div>
+                    </div>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="pricing-name">声誉查询</div>
+                    <div class="pricing-price">$0.0005</div>
+                    <div class="pricing-unit">每次</div>
+                    <div class="pricing-features">
+                        <div class="pricing-feature">✓ 详细声誉分析</div>
+                        <div class="pricing-feature">✓ Sybil 风险评估</div>
+                        <div class="pricing-feature">✓ 标签维度评分</div>
+                        <div class="pricing-feature">✓ 时间序列数据</div>
+                    </div>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="pricing-name">批量搜索</div>
+                    <div class="pricing-price">$0.005</div>
+                    <div class="pricing-unit">100 条</div>
+                    <div class="pricing-features">
+                        <div class="pricing-feature">✓ 关键词搜索</div>
+                        <div class="pricing-feature">✓ 多维度过滤</div>
+                        <div class="pricing-feature">✓ 最多 100 个结果</div>
+                        <div class="pricing-feature">✓ 支持排序</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Documentation Section -->
+    <section class="api-section">
+        <div class="container">
+            <h2 class="section-title">API 快速开始</h2>
+            <p class="demo-description">简单的 REST API，几行代码即可集成</p>
+
+            <h3 style="margin-top: 40px; margin-bottom: 16px;">智能匹配 API</h3>
+            <div class="code-block">
+                <pre>POST /api/v1/match
+
+{
+  "task": "我需要一个能分析鲸鱼钱包交易行为的 AI Agent",
+  "limit": 5
+}
+
+Response:
+{
+  "success": true,
+  "matchCount": 5,
+  "taskUnderstanding": {
+    "domains": ["blockchain", "data-analysis"],
+    "skills": ["web3", "ethereum"],
+    "capabilities": ["wallet-analysis", "transaction-analysis"]
+  },
+  "matches": [...]
+}</pre>
+            </div>
+
+            <h3 style="margin-top: 40px; margin-bottom: 16px;">声誉查询 API</h3>
+            <div class="code-block">
+                <pre>GET /api/v1/reputation/sepolia/{agentId}
+
+Response:
+{
+  "success": true,
+  "reputation": {
+    "overall": 85.0,
+    "breakdown": {
+      "accuracy": 80,
+      "reliability": 85,
+      "speed": 88,
+      "value": 87
+    },
+    "totalFeedbacks": 24,
+    "sybilRisk": 0.15
+  }
+}</pre>
+            </div>
+
+            <p style="text-align: center; margin-top: 40px;">
+                <a href="/docs.html" class="hero-cta" style="display: inline-block;">查看完整 API 文档</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-links">
+                <a href="https://github.com/wangjiangbei/x402-mcp-server" class="footer-link">GitHub</a>
+                <a href="/docs.html" class="footer-link">API 文档</a>
+                <a href="https://eips.ethereum.org/EIPS/eip-8004" class="footer-link">ERC-8004 标准</a>
+                <a href="/brochure.html" class="footer-link">产品手册</a>
+            </div>
+            <p class="footer-copyright">
+                Powered by ERC-8004 & x402 Protocol | © 2026 AgentRank
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // 使用示例任务
+        function useExample(task) {
+            document.getElementById('taskInput').value = task;
+        }
+
+        // 处理匹配请求
+        async function handleMatch() {
+            const taskInput = document.getElementById('taskInput').value.trim();
+
+            if (!taskInput) {
+                alert('请输入任务描述');
+                return;
+            }
+
+            const loadingEl = document.getElementById('loading');
+            const resultsEl = document.getElementById('results');
+            const matchBtn = document.getElementById('matchBtn');
+
+            // 显示加载状态
+            loadingEl.style.display = 'block';
+            resultsEl.style.display = 'none';
+            matchBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/v1/match', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        task: taskInput,
+                        limit: 5
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    alert('匹配失败: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('请求失败: ' + error.message);
+            } finally {
+                loadingEl.style.display = 'none';
+                matchBtn.disabled = false;
+            }
+        }
+
+        // 显示结果
+        function displayResults(data) {
+            const resultsEl = document.getElementById('results');
+            const understandingEl = document.getElementById('understanding');
+            const agentListEl = document.getElementById('agentList');
+
+            // 显示任务理解
+            if (data.taskUnderstanding) {
+                const tu = data.taskUnderstanding;
+                understandingEl.innerHTML = `
+                    <div class="understanding-title">📋 AI 理解你的任务</div>
+                    <div class="understanding-grid">
+                        <div class="understanding-item">
+                            <div class="understanding-label">领域</div>
+                            <div class="understanding-tags">
+                                ${(tu.domains || []).map(d => `<span class="understanding-tag">${d}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div class="understanding-item">
+                            <div class="understanding-label">技能</div>
+                            <div class="understanding-tags">
+                                ${(tu.skills || []).map(s => `<span class="understanding-tag">${s}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div class="understanding-item">
+                            <div class="understanding-label">能力</div>
+                            <div class="understanding-tags">
+                                ${(tu.capabilities || []).map(c => `<span class="understanding-tag">${c}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div class="understanding-item">
+                            <div class="understanding-label">复杂度</div>
+                            <div class="understanding-value">${tu.complexity || 'medium'}</div>
+                        </div>
+                    </div>
+                    ${tu.intent ? `<p style="margin-top: 16px; color: var(--text-secondary); font-size: 14px;">意图: ${tu.intent}</p>` : ''}
+                `;
+            }
+
+            // 显示 Agent 列表
+            if (data.matches && data.matches.length > 0) {
+                agentListEl.innerHTML = data.matches.map((match, index) => `
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div>
+                                <div class="agent-name">
+                                    🤖 ${match.agent.name || `Agent #${index + 1}`}
+                                </div>
+                                <div class="agent-id">ID: ${match.agent.agentId}</div>
+                            </div>
+                            <div class="agent-scores">
+                                <div class="score-item">
+                                    <div class="score-label">匹配度</div>
+                                    <div class="score-value">${(match.matchScore * 100).toFixed(0)}%</div>
+                                </div>
+                                <div class="score-item">
+                                    <div class="score-label">声誉</div>
+                                    <div class="score-value">${match.reputation.overall.toFixed(0)}/100</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="agent-reason">
+                            💡 ${match.matchReason}
+                        </div>
+
+                        <div class="agent-breakdown">
+                            <div class="breakdown-title">四维度评分</div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">准确性</div>
+                                <div class="breakdown-bar">
+                                    <div class="breakdown-fill" style="width: ${match.reputation.breakdown.accuracy}%"></div>
+                                </div>
+                                <div class="breakdown-value">${match.reputation.breakdown.accuracy.toFixed(0)}</div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">可靠性</div>
+                                <div class="breakdown-bar">
+                                    <div class="breakdown-fill" style="width: ${match.reputation.breakdown.reliability}%"></div>
+                                </div>
+                                <div class="breakdown-value">${match.reputation.breakdown.reliability.toFixed(0)}</div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">速度</div>
+                                <div class="breakdown-bar">
+                                    <div class="breakdown-fill" style="width: ${match.reputation.breakdown.speed}%"></div>
+                                </div>
+                                <div class="breakdown-value">${match.reputation.breakdown.speed.toFixed(0)}</div>
+                            </div>
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">性价比</div>
+                                <div class="breakdown-bar">
+                                    <div class="breakdown-fill" style="width: ${match.reputation.breakdown.value}%"></div>
+                                </div>
+                                <div class="breakdown-value">${match.reputation.breakdown.value.toFixed(0)}</div>
+                            </div>
+                        </div>
+
+                        <div style="font-size: 12px; color: var(--text-secondary);">
+                            📊 基于 ${match.reputation.totalFeedbacks} 条反馈 |
+                            ⚠️ Sybil 风险: ${(match.reputation.sybilRisk * 100).toFixed(1)}%
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                agentListEl.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                        <p>😔 暂未找到匹配的 Agent</p>
+                        <p>尝试调整你的任务描述或使用其他关键词</p>
+                    </div>
+                `;
+            }
+
+            resultsEl.style.display = 'block';
+        }
+
+        // 回车键触发搜索
+        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleMatch();
+            }
+        });
+    </script>
+</body>
+</html>
