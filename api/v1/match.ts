@@ -34,6 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    console.log('[Match API] Request received:', { task: req.body?.task, limit: req.body?.limit });
     // 解析请求体
     const {
       task,
@@ -63,7 +64,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // 执行匹配
     const startTime = Date.now();
+    console.log('[Match API] Initializing IntelligentMatchingService...', { network, hasApiKey: !!anthropicApiKey });
+
     const matchingService = new IntelligentMatchingService(network, anthropicApiKey);
+    console.log('[Match API] Service initialized, calling match()...');
 
     const results = await matchingService.match({
       task,
@@ -101,11 +105,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })),
     });
   } catch (error: any) {
-    console.error('Match API error:', error);
+    console.error('[Match API] Error occurred:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code,
+    });
 
     return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
     });
   }
 }
